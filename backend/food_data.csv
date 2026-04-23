@@ -1,0 +1,277 @@
+name,calories,protein,carbs,fat,category,is_veg,serving_size,serving_name,aliases
+Rice,130,2.7,28.7,0.2,carbs,yes,150,1 bowl,white rice chawal steamed rice
+Brown Rice,150,3.2,31.0,1.2,carbs,yes,150,1 bowl,brown rice sabut chawal
+Basmati Rice,140,3.0,30.0,0.2,carbs,yes,150,1 bowl,basmati long grain rice
+Roti,120,3.0,20.0,3.0,carbs,yes,40,1 roti,chapati phulka wheat roti
+Whole Wheat Roti,110,3.5,18.5,2.8,carbs,yes,40,1 roti,atta roti gehun chapati
+Paratha,300,7.5,40.0,14.0,carbs,yes,100,1 paratha,paratha stuffed flatbread
+Aloo Paratha,310,7.5,42.0,14.0,carbs,yes,110,1 paratha,aloo paratha potato stuffed paratha
+Puri,150,2.5,16.0,8.5,carbs,yes,35,1 puri,puri fried bread
+Naan,290,9.2,50.0,6.4,carbs,yes,90,1 naan,naan tandoor bread
+Bhatura,350,8.5,50.0,14.0,carbs,yes,100,1 bhatura,bhatura fried bread chole bhature
+Jowar Roti,110,3.5,22.0,1.2,carbs,yes,45,1 roti,jowar roti sorghum bhakri
+Bajra Roti,125,3.8,23.5,1.9,carbs,yes,45,1 roti,bajra roti pearl millet bhakri
+Makki Roti,130,3.5,25.0,2.0,carbs,yes,50,1 roti,makki roti corn flour roti
+Ragi Roti,115,2.8,22.5,1.0,carbs,yes,45,1 roti,ragi roti finger millet nachni
+Poha,180,3.5,31.0,5.0,carbs,yes,200,1 plate,poha flattened rice beaten rice kanda poha
+Upma,220,5.5,33.0,8.0,carbs,yes,200,1 plate,upma sooji upma rava upma
+Idli,80,2.5,17.0,0.4,carbs,yes,60,1 idli,idli steamed rice cake south indian
+Dosa,120,3.5,21.5,2.5,carbs,yes,80,1 dosa,dosa crispy crepe south indian
+Masala Dosa,213,5.5,37.0,6.0,carbs,yes,150,1 dosa,masala dosa stuffed dosa
+Uttapam,200,6.0,34.0,4.5,carbs,yes,150,1 uttapam,uttapam thick dosa onion uttapam
+Rava Idli,180,4.5,30.0,5.0,carbs,yes,120,2 idlis,rava idli sooji idli instant idli
+Semolina (Suji),360,10.4,74.8,0.8,carbs,yes,30,2 tbsp,suji rava semolina sooji
+Wheat Flour (Atta),341,12.1,69.4,1.7,carbs,yes,30,3 tbsp,atta gehun flour whole wheat
+Maida,348,10.3,73.9,0.9,carbs,yes,30,3 tbsp,maida refined flour all purpose flour
+Sabudana,350,0.2,86.0,0.0,carbs,yes,100,100g,sabudana sago tapioca pearls
+Oats,150,5.5,27.0,3.5,carbs,yes,40,1 bowl dry,oats porridge daliya oatmeal
+Daliya,130,3.0,26.5,0.8,carbs,yes,150,1 bowl cooked,daliya broken wheat porridge lapsi
+Vermicelli,280,8.0,57.0,1.0,carbs,yes,80,1 bowl dry,sewai seviyan vermicelli
+Appam,145,3.0,30.0,1.5,carbs,yes,80,1 appam,appam rice pancake kerala
+Puttu,208,4.8,45.5,1.5,carbs,yes,120,1 serving,puttu steamed rice cake kerala
+Khichdi,190,8.5,28.0,5.5,carbs,yes,200,1 bowl,khichdi rice dal comfort food
+Pulao,210,5.5,35.0,6.0,carbs,yes,200,1 bowl,pulao veg pulao rice pilaf
+Biryani Veg,250,7.5,40.0,8.5,carbs,yes,250,1 plate,veg biryani vegetable biryani
+Biryani Chicken,290,16.0,33.0,11.0,carbs,no,300,1 plate,chicken biryani hyderabadi biryani
+Bread White,75,2.5,14.0,0.9,carbs,yes,28,1 slice,bread white sandwich bread
+Bread Brown,70,2.7,12.5,0.9,carbs,yes,28,1 slice,brown bread wheat bread
+Cornflakes,100,2.0,23.0,0.3,carbs,yes,30,1 bowl,cornflakes breakfast cereal
+Pongal,230,6.5,35.5,7.0,carbs,yes,200,1 bowl,pongal ven pongal rice lentil
+Sabudana Khichdi,295,4.5,45.0,11.0,carbs,yes,200,1 plate,sabudana khichdi sago khichdi
+Dal,116,9.0,20.0,1.0,protein,yes,150,1 bowl,dal lentils dal fry tadka dal
+Toor Dal,148,10.0,26.0,0.8,protein,yes,150,1 bowl,toor dal arhar dal pigeon pea
+Moong Dal,104,7.5,18.0,0.5,protein,yes,150,1 bowl,moong dal mung dal yellow dal
+Masoor Dal,117,9.5,20.0,0.4,protein,yes,150,1 bowl,masoor dal red lentil pink dal
+Urad Dal,118,9.5,20.5,0.5,protein,yes,150,1 bowl,urad dal black gram white dal
+Chana Dal,167,9.5,27.5,2.7,protein,yes,150,1 bowl,chana dal bengal gram split chickpea
+Rajma,164,10.0,27.0,1.3,protein,yes,150,1 bowl,rajma kidney beans rajma curry
+Chole,164,9.0,27.0,2.6,protein,yes,150,1 bowl,chole chickpeas kabuli chana chhole
+Whole Moong,105,8.0,19.0,0.5,protein,yes,150,1 bowl,whole moong green gram sabut moong
+Lobia,118,9.0,20.0,0.7,protein,yes,150,1 bowl,lobia black eyed peas cowpea
+Dal Makhani,180,9.5,20.0,8.0,protein,yes,150,1 bowl,dal makhani black dal maa ki dal
+Soybean Chunks,345,52.0,33.0,0.5,protein,yes,50,50g dry,soya chunks meal maker textured protein
+Besan,353,22.5,57.8,5.7,protein,yes,30,3 tbsp,besan gram flour chickpea flour
+Sprouts (Moong),30,3.0,5.5,0.2,protein,yes,100,1 cup,moong sprouts bean sprouts ankurit anaj
+Sprouts Mixed,35,3.5,6.0,0.3,protein,yes,100,1 cup,mixed sprouts moth matki sprouts
+Milk,60,3.2,4.7,3.4,dairy,yes,250,1 glass,milk doodh cow milk
+Buffalo Milk,117,5.2,6.3,7.8,dairy,yes,250,1 glass,buffalo milk bhains ka doodh
+Toned Milk,50,3.0,4.5,1.8,dairy,yes,250,1 glass,toned milk low fat milk
+Skimmed Milk,35,3.5,5.0,0.1,dairy,yes,250,1 glass,skimmed milk fat free milk
+Paneer,265,18.3,1.2,20.8,protein,yes,100,100g,paneer cottage cheese fresh paneer
+Low Fat Paneer,158,19.0,2.5,8.0,protein,yes,100,100g,low fat paneer diet paneer
+Curd,98,3.1,3.4,6.6,dairy,yes,150,1 katori,curd dahi yogurt plain curd
+Low Fat Curd,60,4.0,4.5,2.5,dairy,yes,150,1 katori,low fat curd diet dahi fat free yogurt
+Greek Yogurt,100,10.0,3.6,5.0,dairy,yes,150,1 cup,greek yogurt thick curd hung curd
+Hung Curd,120,8.0,3.0,8.5,dairy,yes,100,100g,hung curd chakka shrikhand base
+Buttermilk,40,3.3,4.8,1.0,dairy,yes,250,1 glass,chaas buttermilk chachh
+Lassi Sweet,150,4.0,20.0,5.5,dairy,yes,300,1 glass,sweet lassi dahi lassi punjabi lassi
+Lassi Salted,90,4.0,5.5,5.5,dairy,yes,300,1 glass,salted lassi namkeen lassi
+Khoya,421,18.7,26.7,27.0,dairy,yes,50,50g,khoya mawa dried milk solid
+Butter,717,0.9,0.1,81.1,fat,yes,10,1 tsp,butter makhan white butter
+Ghee,900,0.0,0.0,99.5,fat,yes,5,1 tsp,ghee clarified butter desi ghee
+Cream,340,2.1,3.0,35.0,fat,yes,30,2 tbsp,cream malai fresh cream
+Cheese,357,23.5,4.1,27.8,dairy,yes,30,1 slice,cheese processed cheese slice
+Raita,79,3.7,7.2,4.2,dairy,yes,150,1 bowl,raita boondi raita cucumber raita
+Shrikhand,252,7.2,46.0,5.5,dairy,yes,100,1 katori,shrikhand sweet yogurt dessert
+Mishti Doi,130,4.5,21.5,3.5,dairy,yes,150,1 bowl,mishti doi sweet yogurt bengali
+Chicken Breast,165,31.0,0.0,3.6,protein,no,100,100g,chicken boneless breast grilled chicken
+Chicken Thigh,209,26.0,0.0,10.9,protein,no,100,100g,chicken thigh dark meat
+Chicken (with skin),239,27.3,0.0,13.6,protein,no,120,1 piece,chicken with skin roasted chicken
+Chicken Curry,220,20.0,6.0,13.0,protein,no,200,1 bowl,chicken curry murgh curry
+Butter Chicken,245,18.5,9.5,15.0,protein,no,200,1 bowl,butter chicken murgh makhani
+Chicken Tikka,165,25.5,3.5,5.5,protein,no,150,6 pieces,chicken tikka grilled chicken
+Tandoori Chicken,195,28.0,4.5,7.5,protein,no,200,1 serving,tandoori chicken tikka
+Mutton,294,25.6,0.0,21.0,protein,no,100,100g,mutton goat meat gosht
+Mutton Curry,280,22.0,6.5,19.5,protein,no,200,1 bowl,mutton curry gosht curry
+Egg,143,13.3,0.7,9.5,protein,no,50,1 egg,egg anda whole egg boiled egg
+Egg White,17,3.6,0.2,0.1,protein,no,33,1 white,egg white albumen
+Egg Yolk,55,2.7,0.6,4.5,protein,no,17,1 yolk,egg yolk
+Omelette,175,12.0,1.5,13.0,protein,no,100,2 egg omelette,omelette egg omelette masala omelette
+Boiled Egg,78,6.3,0.6,5.3,protein,no,55,1 boiled egg,boiled egg hard boiled anda
+Scrambled Eggs,180,12.0,2.0,13.5,protein,no,100,2 eggs,scrambled eggs anda bhurji
+Fish (Rohu),97,16.6,4.4,2.4,protein,no,100,100g,rohu fish rui bengali fish
+Fish (Pomfret),112,20.0,2.0,2.8,protein,no,100,100g,pomfret fish paplet silver pomfret
+Fish (Mackerel),205,19.0,0.0,13.9,protein,no,100,100g,mackerel bangda fish
+Fish (Hilsa),273,21.8,2.9,19.4,protein,no,100,100g,hilsa ilish hilsa fish
+Fish Curry,155,16.5,5.5,8.5,protein,no,200,1 bowl,fish curry machli curry
+Prawn,106,20.3,1.5,1.7,protein,no,100,100g,prawn shrimp jhinga
+Prawn Curry,160,16.0,6.5,8.0,protein,no,200,1 bowl,prawn curry jhinga curry
+Liver (Goat),165,26.5,3.8,5.1,protein,no,100,100g,kaleji goat liver
+Potato,97,1.6,22.6,0.1,vegetable,yes,150,1 medium,aloo potato batata
+Onion,40,1.2,9.0,0.1,vegetable,yes,100,1 medium,pyaz onion kanda
+Tomato,20,0.9,3.9,0.2,vegetable,yes,100,1 medium,tamatar tomato
+Spinach,26,2.0,3.6,0.7,vegetable,yes,100,1 cup,palak spinach palak leaves
+Cauliflower,25,2.6,5.0,0.3,vegetable,yes,100,1 cup,gobhi cauliflower phool gobhi
+Cabbage,25,1.3,5.8,0.2,vegetable,yes,100,1 cup,patta gobhi cabbage band gobhi
+Bitter Gourd,17,1.0,3.7,0.2,vegetable,yes,100,1 medium,karela bitter gourd bitter melon
+Brinjal,25,1.4,5.5,0.3,vegetable,yes,100,1 medium,baingan brinjal eggplant aubergine
+Okra,33,1.9,7.4,0.2,vegetable,yes,100,1 cup,bhindi okra ladies finger
+Peas,81,5.4,14.5,0.4,vegetable,yes,100,1 cup,matar peas green peas
+Carrot,41,0.9,9.6,0.2,vegetable,yes,100,1 medium,gajar carrot
+Capsicum,31,1.0,6.0,0.3,vegetable,yes,100,1 medium,shimla mirch capsicum bell pepper
+Bottle Gourd,15,0.5,3.4,0.1,vegetable,yes,200,1 cup,lauki bottle gourd ghiya dudhi
+Ridge Gourd,20,1.2,4.4,0.2,vegetable,yes,100,1 cup,turai ridge gourd gilki
+Pumpkin,26,1.0,6.5,0.1,vegetable,yes,100,1 cup,kaddu pumpkin sitaphal
+Drumstick,37,2.1,8.5,0.2,vegetable,yes,100,2 sticks,sahjan drumstick moringa pods
+Drumstick Leaves,92,9.4,13.4,1.7,vegetable,yes,50,1 cup,moringa leaves sahjan patta
+Fenugreek Leaves,49,4.4,6.0,0.9,vegetable,yes,100,1 cup,methi methi leaves fenugreek
+Coriander Leaves,23,2.1,3.7,0.5,vegetable,yes,20,handful,dhania coriander cilantro hara dhania
+Mint Leaves,44,3.3,8.5,0.7,vegetable,yes,20,handful,pudina mint peppermint
+Colocasia,97,3.0,21.1,0.1,vegetable,yes,100,1 cup,arbi colocasia taro root
+Sweet Potato,86,1.6,20.1,0.1,vegetable,yes,130,1 medium,shakarkandi sweet potato
+Radish,16,0.7,3.4,0.1,vegetable,yes,100,1 cup,mooli radish white radish
+Cluster Beans,16,3.2,10.8,0.4,vegetable,yes,100,1 cup,gawar cluster beans guar phali
+Raw Banana,80,0.9,19.8,0.2,vegetable,yes,100,1 medium,kachcha kela raw banana green banana
+Jackfruit (raw),51,1.5,11.4,0.3,vegetable,yes,100,1 cup,kathal raw jackfruit
+Bamboo Shoot,27,2.6,5.2,0.3,vegetable,yes,100,1 cup,bamboo shoot bans shoot northeast
+Curry Leaves,108,6.1,18.7,1.0,vegetable,yes,10,10 leaves,curry patta kadi patta meetha neem
+Palak Paneer,182,9.5,9.0,12.5,protein,yes,200,1 bowl,palak paneer saag paneer
+Aloo Gobi,130,3.5,17.0,6.5,vegetable,yes,200,1 bowl,aloo gobhi potato cauliflower sabzi
+Baingan Bharta,95,2.5,12.0,5.5,vegetable,yes,200,1 bowl,baingan bharta smoky brinjal
+Matar Paneer,195,10.5,12.0,12.5,protein,yes,200,1 bowl,matar paneer peas cottage cheese
+Aloo Matar,150,5.5,22.0,5.5,vegetable,yes,200,1 bowl,aloo matar potato peas curry
+Saag,120,6.0,10.0,7.0,vegetable,yes,200,1 bowl,saag sarson da saag mustard greens
+Mixed Veg Curry,120,4.0,15.0,5.5,vegetable,yes,200,1 bowl,mixed vegetables sabzi
+Avial,118,3.5,14.0,6.0,vegetable,yes,200,1 bowl,avial kerala mixed veg coconut
+Banana,89,1.1,22.8,0.3,fruit,yes,120,1 banana,kela banana plantain
+Apple,52,0.3,13.8,0.2,fruit,yes,150,1 apple,seb apple
+Mango,60,0.6,15.0,0.4,fruit,yes,100,half mango,aam mango alphonso dasheri
+Orange,47,0.9,11.8,0.1,fruit,yes,150,1 orange,santra orange narangi
+Guava,68,2.6,14.3,1.0,fruit,yes,100,1 guava,amrood guava peru
+Papaya,43,0.5,10.8,0.3,fruit,yes,150,1 cup,papita papaya
+Watermelon,30,0.6,7.6,0.2,fruit,yes,300,2 slices,tarbooz watermelon
+Grapes,69,0.6,18.1,0.2,fruit,yes,100,1 cup,angur grapes
+Pineapple,50,0.5,13.1,0.1,fruit,yes,150,1 cup,ananas pineapple
+Chickoo,83,0.4,19.9,1.1,fruit,yes,100,1 chickoo,chikoo sapota sapodilla
+Jamun,60,0.7,14.0,0.2,fruit,yes,100,1 cup,jamun black plum java plum
+Litchi,66,0.8,16.5,0.4,fruit,yes,100,10 litchis,litchi lychee
+Pomegranate,83,1.7,18.7,1.2,fruit,yes,100,half fruit,anar pomegranate
+Coconut Fresh,354,3.3,15.2,33.5,fat,yes,30,1 piece,nariyal coconut fresh coconut
+Amla,44,0.9,10.2,0.6,fruit,yes,100,4-5 amlas,amla indian gooseberry awla
+Sitafal,94,2.1,23.5,0.3,fruit,yes,150,1 fruit,sitafal custard apple shareefa
+Dates,282,2.5,75.0,0.4,fruit,yes,30,3-4 dates,khajoor dates
+Kiwi,61,1.1,14.7,0.5,fruit,yes,75,1 kiwi,kiwi kiwifruit
+Pear,57,0.4,15.2,0.1,fruit,yes,150,1 pear,nashpati pear
+Strawberry,32,0.7,7.7,0.3,fruit,yes,100,1 cup,strawberry
+Muskmelon,28,0.6,6.6,0.2,fruit,yes,200,1 cup,kharbooja muskmelon
+Plum,46,0.7,11.4,0.3,fruit,yes,80,2 plums,aloo bukhara plum
+Pear,57,0.4,15.2,0.1,fruit,yes,150,1 pear,nashpati pear
+Jackfruit Ripe,95,1.7,23.2,0.6,fruit,yes,100,1 cup,kathal ripe jackfruit phal
+Ber,79,0.8,20.2,0.1,fruit,yes,100,8-10 bers,ber indian jujube bor
+Almonds,579,21.2,21.7,49.9,fat,yes,30,10-12 almonds,badam almond
+Cashew,553,18.2,30.2,43.8,fat,yes,30,10 cashews,kaju cashew nut
+Walnuts,654,15.2,13.7,65.2,fat,yes,30,4-5 halves,akhrot walnut
+Peanuts,567,25.8,16.1,49.2,fat,yes,30,small handful,moongfali peanut groundnut
+Pistachios,560,20.2,27.2,45.4,fat,yes,30,20-25 pistachios,pista pistachio
+Sesame Seeds,573,17.7,23.5,49.7,fat,yes,15,1 tbsp,til sesame seeds gingelly
+Flaxseeds,534,18.3,28.9,42.2,fat,yes,15,1 tbsp,alsi flaxseed linseed
+Chia Seeds,486,16.5,42.1,30.7,fat,yes,15,1 tbsp,chia seeds
+Sunflower Seeds,584,20.8,20.0,51.5,fat,yes,30,2 tbsp,sunflower seeds
+Pumpkin Seeds,559,30.2,10.7,49.1,fat,yes,30,2 tbsp,kaddu ke beej pumpkin seeds
+Coconut Dry,662,6.9,23.0,64.5,fat,yes,20,small piece,sukha nariyal dry coconut kopra
+Chikki Peanut,520,14.0,58.0,28.0,snack,yes,40,1 piece,peanut chikki groundnut brittle
+Mustard Oil,900,0.0,0.0,100.0,fat,yes,5,1 tsp,sarson ka tel mustard oil
+Sunflower Oil,900,0.0,0.0,100.0,fat,yes,5,1 tsp,sunflower oil cooking oil
+Coconut Oil,900,0.0,0.0,99.1,fat,yes,5,1 tsp,nariyal tel coconut oil
+Groundnut Oil,900,0.0,0.0,100.0,fat,yes,5,1 tsp,moongfali tel groundnut oil
+Olive Oil,884,0.0,0.0,100.0,fat,yes,5,1 tsp,olive oil jaitun ka tel
+Vanaspati,900,0.0,0.0,100.0,fat,yes,5,1 tsp,vanaspati dalda hydrogenated fat
+Samosa,308,6.2,30.1,18.5,snack,yes,100,1 samosa,samosa potato samosa
+Pakora,250,8.0,25.0,14.0,snack,yes,80,4-5 pieces,pakora bhajiya fritters onion pakoda
+Vada Pav,290,7.5,40.0,12.0,snack,yes,150,1 piece,vada pav mumbai burger
+Pani Puri,180,4.0,28.0,6.0,snack,yes,120,6 pieces,pani puri golgappa gupchup puchka
+Bhel Puri,215,5.5,35.0,7.0,snack,yes,200,1 plate,bhel puri chaat
+Sev Puri,250,6.5,38.0,9.0,snack,yes,150,1 plate,sev puri chaat
+Dhokla,160,7.5,24.0,4.5,snack,yes,150,2 pieces,dhokla khaman gujarati snack
+Kachori,300,7.0,35.0,15.5,snack,yes,80,1 kachori,kachori dal kachori pyaz kachori
+Idli Sambhar,200,9.0,37.0,3.0,snack,yes,250,2 idli + sambhar,idli sambhar south indian breakfast
+Momos Veg,165,6.0,27.0,4.5,snack,yes,150,6 pieces,veg momos steamed dumpling
+Momos Chicken,190,12.0,23.0,6.5,snack,yes,150,6 pieces,chicken momos non veg dumpling
+Murukku,450,8.0,52.0,23.0,snack,yes,40,handful,murukku chakli rice flour snack
+Chakli,460,7.5,52.0,24.5,snack,yes,40,2-3 pieces,chakli murukku spiral snack
+Papad,335,22.5,59.1,1.1,snack,yes,25,1 papad,papad papadum poppadom
+Puffed Rice,321,5.9,73.5,0.5,snack,yes,30,1 cup,murmura puffed rice muri
+Sev,510,18.0,55.0,28.0,snack,yes,30,handful,sev besan sev noodles
+Mathri,490,8.5,55.0,28.0,snack,yes,30,2-3 pieces,mathri namkeen biscuit
+Aloo Tikki,240,4.5,35.5,10.0,snack,yes,100,2 tikkis,aloo tikki potato patty
+Dahi Vada,190,9.0,23.5,7.5,snack,yes,200,2 pieces,dahi vada dahi bhalla
+Chaat,200,6.0,32.0,7.0,snack,yes,200,1 plate,chaat aloo chaat papdi chaat
+Mixture Namkeen,490,12.0,56.0,26.0,snack,yes,30,handful,mixture namkeen farsan
+Popcorn,375,11.0,74.0,4.5,snack,yes,30,1 cup,popcorn makka popcorn
+Maggi Noodles,350,9.0,49.0,14.5,snack,yes,80,1 pack cooked,maggi instant noodles
+Gulab Jamun,353,5.2,55.1,14.9,sweet,yes,60,2 pieces,gulab jamun mithai
+Rasgulla,186,6.1,28.6,5.4,sweet,yes,80,2 pieces,rasgulla bengali sweet
+Jalebi,406,2.9,65.0,16.0,sweet,yes,60,2-3 pieces,jalebi imarti crispy sweet
+Ladoo Besan,184,3.6,24.0,8.8,sweet,yes,40,1 ladoo,besan ladoo gram flour sweet
+Ladoo Boondi,170,3.0,25.0,7.0,sweet,yes,40,1 ladoo,boondi ladoo motichoor ladoo
+Barfi Khoya,223,4.0,30.0,10.5,sweet,yes,50,1 piece,barfi burfi khoya mithai
+Halwa Sooji,310,4.8,47.0,12.0,sweet,yes,150,1 bowl,sooji halwa rava sheera
+Kheer,150,4.0,23.0,5.5,sweet,yes,150,1 bowl,kheer rice kheer payasam
+Payasam,160,4.5,24.0,6.0,sweet,yes,150,1 bowl,payasam kheer south indian pudding
+Peda,225,4.8,31.0,10.0,sweet,yes,50,1 piece,peda mithai mathura peda
+Mysore Pak,232,3.2,22.0,15.2,sweet,yes,40,1 piece,mysore pak south indian sweet
+Modak,295,5.5,46.0,11.0,sweet,yes,60,1 modak,modak ganesh sweet ukdiche modak
+Puran Poli,310,8.5,52.0,9.0,sweet,yes,100,1 piece,puran poli sweet flatbread
+Sandesh,160,5.5,23.5,5.0,sweet,yes,50,1 piece,sandesh bengali sweet sondesh
+Gujiya,420,7.5,57.0,20.0,sweet,yes,100,1 piece,gujiya karanji holi sweet
+Ghewar,430,6.5,64.0,18.0,sweet,yes,100,1 piece,ghewar teej mithai rajasthani
+Chikki,520,14.0,58.0,28.0,sweet,yes,40,1 piece,chikki peanut brittle
+Halwa Carrot,200,3.5,28.0,9.0,sweet,yes,150,1 bowl,gajar ka halwa carrot halwa
+Mishti Doi,130,4.5,21.5,3.5,sweet,yes,150,1 bowl,mishti doi bengali sweet curd
+Ice Cream,207,3.5,24.0,11.0,sweet,yes,100,1 scoop,ice cream kulfi frozen dessert
+Kulfi,255,5.5,32.0,12.0,sweet,yes,80,1 stick,kulfi indian ice cream malai kulfi
+Milk Tea,40,1.5,5.5,1.5,beverage,yes,150,1 cup,chai tea milk tea garam chai
+Black Tea,2,0.3,0.4,0.0,beverage,yes,200,1 cup,kali chai black tea without milk
+Coffee Black,2,0.3,0.0,0.0,beverage,yes,200,1 cup,black coffee coffee without milk
+Filter Coffee,50,1.8,6.5,1.8,beverage,yes,150,1 cup,filter coffee south indian coffee
+Cold Coffee,120,4.0,16.0,4.5,beverage,yes,300,1 glass,cold coffee iced coffee
+Milk with Sugar,95,3.5,9.5,3.5,beverage,yes,250,1 glass,doodh milk sweetened milk
+Lassi Sweet,150,4.0,20.0,5.5,beverage,yes,300,1 glass,meethi lassi sweet lassi
+Chaas,35,2.5,5.0,0.5,beverage,yes,250,1 glass,chaas buttermilk chachh
+Coconut Water,19,0.7,3.7,0.2,beverage,yes,250,1 glass,nariyal pani coconut water
+Sugarcane Juice,73,0.2,18.0,0.0,beverage,yes,250,1 glass,ganne ka ras sugarcane juice
+Aam Panna,85,0.5,21.0,0.2,beverage,yes,250,1 glass,aam panna raw mango drink
+Nimbu Pani,30,0.2,8.0,0.0,beverage,yes,250,1 glass,nimbu pani lemonade shikanji
+Jaljeera,25,0.5,6.0,0.1,beverage,yes,200,1 glass,jaljeera cumin water masala drink
+Rose Sharbat,100,0.0,26.0,0.0,beverage,yes,200,1 glass,rooh afza sharbat rose drink
+Sattu Drink,140,8.0,24.0,2.0,beverage,yes,300,1 glass,sattu drink roasted gram drink
+Badam Milk,165,6.5,21.0,6.5,beverage,yes,250,1 glass,badam milk almond milk masala milk
+Haldi Doodh,80,3.5,7.5,3.5,beverage,yes,200,1 cup,haldi milk golden milk turmeric milk
+Green Tea,2,0.2,0.2,0.0,beverage,yes,200,1 cup,green tea herbal tea
+Fruit Juice Orange,45,0.7,10.4,0.2,beverage,yes,200,1 glass,orange juice mosambi juice
+Chole Bhature,550,14.5,72.0,21.0,snack,yes,300,1 plate,chole bhature north indian
+Dal Baati Churma,600,15.0,80.0,26.0,carbs,yes,300,1 plate,dal baati churma rajasthani
+Pav Bhaji,340,9.5,48.0,13.5,snack,yes,300,1 plate,pav bhaji mumbai street food
+Thali Veg,650,25.0,95.0,20.0,carbs,yes,500,1 thali,veg thali gujarati thali rajasthani thali
+Thali Non Veg,800,40.0,90.0,30.0,carbs,no,600,1 thali,non veg thali chicken thali
+Sambhar,105,5.5,15.5,2.5,protein,yes,200,1 bowl,sambhar south indian dal
+Rasam,45,1.5,7.5,1.0,vegetable,yes,200,1 bowl,rasam pepper water south indian
+Nihari,280,20.0,6.0,20.0,protein,no,200,1 bowl,nihari slow cooked mutton
+Litti Chokha,350,11.0,50.0,12.0,carbs,yes,200,2 litti,litti chokha bihari dish
+Misal Pav,320,12.0,45.0,10.5,snack,yes,300,1 plate,misal pav maharashtrian snack
+Fish Fry,200,19.0,5.5,12.0,protein,no,150,1 piece,fish fry tawa fish fried fish
+Seekh Kebab,240,22.0,5.0,15.0,protein,no,150,4-5 pieces,seekh kebab shami kebab
+Egg Curry,185,11.5,7.5,12.0,protein,no,200,1 bowl,egg curry anda curry
+Pongal Sakkarai,310,6.0,52.0,9.0,sweet,yes,200,1 bowl,sweet pongal sakkarai pongal
+Undhiyu,195,7.5,22.0,10.0,vegetable,yes,200,1 bowl,undhiyu gujarati winter dish
+Kadhi Pakora,175,6.0,18.0,9.0,dairy,yes,200,1 bowl,kadhi pakoda punjabi kadhi
+Bisi Bele Bath,220,8.0,33.0,7.0,carbs,yes,200,1 bowl,bisi bele bath karnataka rice dish
+Pesarattu,175,10.0,26.0,4.5,snack,yes,120,1 dosa,pesarattu green moong dosa
+Puttu Kadala,330,12.5,56.0,7.0,carbs,yes,250,1 serving,puttu kadala kerala breakfast
+Kerala Fish Curry,185,16.0,6.5,11.5,protein,no,200,1 bowl,kerala fish curry coconut curry
+Chettinad Chicken,250,22.0,6.5,16.0,protein,no,200,1 bowl,chettinad chicken spicy chicken
+Hyderabadi Biryani,380,18.5,43.0,14.5,carbs,no,350,1 plate,hyderabadi biryani dum biryani
+Dal Tadka,148,9.5,20.0,4.5,protein,yes,200,1 bowl,dal tadka yellow dal tempered dal
+Rajma Chawal,310,13.5,55.0,4.5,carbs,yes,350,1 plate,rajma chawal kidney beans rice
+Kadhi Gujarati,85,3.5,10.0,4.0,dairy,yes,200,1 bowl,gujarati kadhi sweet kadhi
+Ragi Mudde,212,5.0,46.5,1.5,carbs,yes,150,2 balls,ragi mudde finger millet ball
+Thukpa,180,9.0,28.0,4.5,carbs,no,300,1 bowl,thukpa noodle soup northeast
+Kootu,140,7.0,20.0,4.5,vegetable,yes,200,1 bowl,kootu tamil vegetable lentil
+Erissery,165,5.5,21.5,7.5,vegetable,yes,200,1 bowl,erissery kerala pumpkin curry
+Sugar,387,0.0,100.0,0.0,carbs,yes,5,1 tsp,cheeni sugar white sugar
+Jaggery,383,0.4,98.0,0.1,carbs,yes,10,1 piece,gur jaggery gud
+Honey,304,0.3,82.4,0.0,carbs,yes,15,1 tbsp,shahad honey shehad
+Turmeric,354,7.8,67.9,9.9,spice,yes,3,1 tsp,haldi turmeric golden spice
+Ginger,80,1.8,17.8,0.8,spice,yes,10,1 inch piece,adrak ginger
+Garlic,149,6.4,33.1,0.5,spice,yes,10,3-4 cloves,lahsun garlic
+Tamarind,239,2.8,62.5,0.6,spice,yes,15,1 tbsp paste,imli tamarind

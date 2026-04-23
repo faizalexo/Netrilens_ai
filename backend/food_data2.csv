@@ -1,0 +1,383 @@
+name,category,calories,protein,carbs,fat,is_veg
+white rice,grain,130,2.7,28.0,0.3,yes
+brown rice,grain,112,2.6,23.5,0.9,yes
+basmati rice,grain,121,3.0,25.2,0.4,yes
+roti,grain,300,11.0,60.0,5.0,yes
+naan,grain,260,9.0,45.0,5.0,yes
+plain paratha,grain,300,7.0,40.0,12.0,yes
+pasta,grain,130,5.0,25.0,1.0,yes
+noodles,grain,138,4.5,25.0,2.0,yes
+oats,grain,389,16.9,66.3,6.9,yes
+quinoa,grain,120,4.4,21.3,1.9,yes
+semolina,grain,360,12.7,72.8,1.0,yes
+buckwheat,grain,343,13.3,71.5,3.4,yes
+millet,grain,378,11.0,72.8,4.2,yes
+corn flour,grain,364,7.0,78.0,2.8,yes
+whole wheat flour,grain,340,13.2,72.0,2.5,yes
+idli,grain,110,4.0,23.0,1.0,yes
+dosa,grain,170,4.5,30.0,4.0,yes
+uttapam,grain,180,5.0,32.0,4.5,yes
+poha,grain,110,2.5,23.0,1.0,yes
+upma,grain,120,3.0,22.0,2.0,yes
+dal chawal,grain,140,5.0,28.0,1.5,yes
+curd rice,grain,150,4.5,27.0,2.5,yes
+lemon rice,grain,160,3.5,30.0,3.0,yes
+tomato rice,grain,155,3.8,29.0,2.8,yes
+coconut rice,grain,180,4.0,30.0,5.0,yes
+biryani,grain,190,6.0,32.0,5.0,no
+fried rice,grain,170,5.0,31.0,4.0,no
+pulao,grain,150,4.5,28.0,3.0,yes
+khichdi,grain,120,4.0,23.0,1.5,yes
+bread white,grain,265,9.0,49.0,3.2,yes
+brown bread,grain,250,10.0,46.0,4.0,yes
+multigrain bread,grain,260,11.0,45.0,4.5,yes
+pav,grain,290,8.0,50.0,6.0,yes
+croissant,grain,406,8.0,45.0,21.0,yes
+bagel,grain,270,10.0,53.0,1.5,yes
+toor dal,legume,130,9.0,18.0,3.0,yes
+moong dal,legume,120,10.0,18.0,1.5,yes
+masoor dal,legume,116,9.0,20.0,0.5,yes
+chana dal,legume,140,9.0,20.0,3.0,yes
+urad dal,legume,140,11.0,20.0,3.0,yes
+rajma,legume,127,8.7,22.8,0.5,yes
+chole,legume,139,7.5,22.5,2.5,yes
+lobia,legume,116,7.5,20.0,0.5,yes
+matki,legume,130,8.0,21.0,1.0,yes
+green peas,fruit,81,5.4,14.5,0.4,yes
+apple,fruit,52,0.3,14.0,0.2,yes
+banana,fruit,89,1.1,22.8,0.3,yes
+mango,fruit,60,0.8,15.0,0.4,yes
+orange,fruit,47,0.9,11.8,0.1,yes
+papaya,fruit,43,0.5,11.0,0.3,yes
+watermelon,fruit,30,0.6,7.6,0.2,yes
+muskmelon,fruit,34,0.8,8.2,0.2,yes
+grapes,fruit,69,0.7,18.0,0.2,yes
+pomegranate,fruit,83,1.7,18.7,1.2,yes
+guava,fruit,68,2.6,14.3,0.9,yes
+pear,fruit,57,0.4,15.2,0.1,yes
+pineapple,fruit,50,0.5,13.1,0.1,yes
+chickoo,fruit,83,0.4,20.0,1.1,yes
+lychee,fruit,66,0.8,16.5,0.4,yes
+jamun,fruit,62,0.7,15.6,0.2,yes
+kiwi,fruit,61,1.1,14.7,0.5,yes
+strawberry,fruit,32,0.7,7.7,0.3,yes
+blueberry,fruit,57,0.7,14.5,0.3,yes
+dragon fruit,fruit,60,1.2,13.0,0.3,yes
+custard apple,fruit,101,1.7,25.2,0.6,yes
+potato,vegetable,77,2.0,17.5,0.1,yes
+tomato,vegetable,18,0.9,3.9,0.2,yes
+onion,vegetable,40,1.1,9.3,0.1,yes
+carrot,vegetable,41,0.9,9.6,0.2,yes
+cauliflower,vegetable,25,1.9,5.0,0.3,yes
+cabbage,vegetable,25,1.3,5.8,0.1,yes
+spinach,vegetable,23,2.9,3.6,0.4,yes
+brinjal,vegetable,25,1.0,5.9,0.2,yes
+okra,vegetable,33,1.9,7.5,0.2,yes
+pumpkin,vegetable,26,1.0,6.5,0.1,yes
+bitter gourd,vegetable,20,1.0,4.3,0.2,yes
+bottle gourd,vegetable,14,0.6,3.4,0.1,yes
+ridge gourd,vegetable,18,0.8,4.0,0.1,yes
+capsicum,vegetable,20,0.9,4.6,0.2,yes
+green beans,vegetable,31,1.8,6.9,0.2,yes
+cucumber,vegetable,15,0.7,3.6,0.1,yes
+radish,vegetable,16,0.7,3.4,0.1,yes
+beetroot,vegetable,43,1.6,9.6,0.2,yes
+sweet potato,vegetable,86,1.6,20.1,0.1,yes
+yam,vegetable,118,1.5,27.9,0.2,yes
+taro root,vegetable,112,1.5,26.5,0.2,yes
+drumstick,vegetable,64,2.1,12.0,0.1,yes
+fenugreek leaves,vegetable,49,4.4,6.0,1.0,yes
+amaranth leaves,vegetable,23,2.5,4.0,0.3,yes
+mint,vegetable,44,3.3,8.4,0.7,yes
+coriander leaves,vegetable,23,2.1,3.7,0.5,yes
+curry leaves,vegetable,108,6.0,18.0,1.0,yes
+broccoli,vegetable,34,2.8,6.6,0.4,yes
+zucchini,vegetable,17,1.2,3.1,0.3,yes
+mushroom,vegetable,22,3.1,3.3,0.3,yes
+asparagus,vegetable,20,2.2,3.9,0.1,yes
+celery,vegetable,14,0.7,3.0,0.2,yes
+lettuce,vegetable,15,1.4,2.9,0.2,yes
+cow milk,dairy,61,3.2,4.8,3.3,yes
+buffalo milk,dairy,97,3.8,5.5,6.9,yes
+curd,dairy,98,3.3,4.7,8.0,yes
+paneer,dairy,265,18.0,6.0,20.0,yes
+ghee,dairy,900,0.0,0.0,100.0,yes
+butter,dairy,717,0.9,0.1,81.1,yes
+cream,dairy,345,2.8,3.0,36.0,yes
+cheese cheddar,dairy,404,25.0,1.3,33.0,yes
+cheese mozzarella,dairy,280,22.0,3.0,20.0,yes
+processed cheese,dairy,330,20.0,8.0,25.0,yes
+buttermilk,dairy,40,3.3,4.9,0.5,yes
+lassi sweet,dairy,90,2.5,18.0,1.0,yes
+lassi salted,dairy,50,3.0,6.0,1.5,yes
+mango lassi,dairy,95,2.5,19.0,1.2,yes
+ice cream vanilla,dairy,207,3.5,23.6,11.0,yes
+yogurt greek,dairy,59,10.0,3.6,0.4,yes
+kulfi,dairy,220,6.0,25.0,12.0,yes
+rabri,dairy,300,8.0,35.0,15.0,yes
+chhena,dairy,260,18.0,7.0,18.0,yes
+chicken breast,meat,165,31.0,0.0,3.6,no
+chicken thigh,meat,209,26.0,0.0,11.0,no
+chicken leg,meat,184,27.0,0.0,8.0,no
+chicken wing,meat,203,30.0,0.0,8.0,no
+mutton,meat,243,25.0,0.0,16.0,no
+lamb,meat,258,25.0,0.0,17.0,no
+pork,meat,242,27.0,0.0,14.0,no
+beef,meat,250,26.0,0.0,15.0,no
+rohu fish,meat,112,17.0,0.0,4.5,no
+pomfret,meat,141,18.0,0.0,7.0,no
+basa fish,meat,90,15.0,0.0,3.0,no
+salmon,meat,208,20.0,0.0,13.0,no
+tuna,meat,132,28.0,0.0,1.5,no
+mackerel,meat,205,18.0,0.0,14.0,no
+sardines,meat,208,25.0,0.0,11.0,no
+prawns,meat,85,18.0,0.0,1.0,no
+crab,meat,87,18.0,0.0,1.5,no
+squid,meat,92,15.0,3.0,1.5,no
+egg whole,meat,155,13.0,1.1,11.0,no
+egg white,meat,52,11.0,0.7,0.2,no
+egg yolk,meat,322,15.9,3.6,26.5,no
+samosa,snack,270,4.5,31.0,14.0,yes
+kachori,snack,350,5.0,40.0,18.0,yes
+bhujia,snack,540,10.0,40.0,38.0,yes
+sev,snack,550,9.0,42.0,40.0,yes
+namkeen,snack,520,12.0,45.0,35.0,yes
+pakora,snack,280,8.0,25.0,18.0,yes
+onion bhaji,snack,300,6.0,28.0,20.0,yes
+aloo tikki,snack,180,3.0,25.0,8.0,yes
+vada pav,snack,250,6.0,35.0,10.0,yes
+dahi vada,snack,200,6.0,28.0,7.0,yes
+dhokla,snack,160,6.0,24.0,5.0,yes
+khandvi,snack,180,8.0,22.0,7.0,yes
+idli,snack,110,4.0,23.0,1.0,yes
+dosa,snack,170,4.5,30.0,4.0,yes
+vada,snack,250,5.0,32.0,12.0,yes
+medu vada,snack,280,6.0,30.0,16.0,yes
+sambar,snack,65,2.5,11.0,1.0,yes
+chutney,snack,120,1.0,8.0,9.0,yes
+papad,snack,380,20.0,35.0,18.0,yes
+khakhra,snack,400,14.0,60.0,12.0,yes
+thepla,snack,280,8.0,40.0,10.0,yes
+mathri,snack,450,8.0,50.0,25.0,yes
+puri,snack,350,7.0,42.0,18.0,yes
+bhatura,snack,300,6.0,38.0,14.0,yes
+chole bhature,snack,320,8.0,40.0,14.0,yes
+pani puri,snack,180,3.0,30.0,5.0,yes
+bhel puri,snack,200,4.0,35.0,6.0,yes
+sev puri,snack,210,4.0,33.0,7.0,yes
+dahi puri,snack,190,5.0,28.0,6.0,yes
+papdi chaat,snack,220,4.0,32.0,9.0,yes
+aloo chaat,snack,150,2.5,25.0,5.0,yes
+kati roll,snack,250,10.0,28.0,11.0,no
+egg roll,snack,220,9.0,26.0,9.0,no
+pizza margherita,fast_food,270,11.0,33.0,10.0,yes
+pizza pepperoni,fast_food,300,13.0,32.0,13.0,no
+burger veg,fast_food,250,8.0,35.0,9.0,yes
+burger chicken,fast_food,280,15.0,30.0,12.0,no
+french fries,fast_food,312,3.4,41.0,15.0,yes
+fried chicken,fast_food,320,22.0,10.0,22.0,no
+chicken nuggets,fast_food,296,15.0,16.0,20.0,no
+wraps veg,fast_food,200,6.0,30.0,7.0,yes
+wraps chicken,fast_food,230,14.0,28.0,9.0,no
+sandwich veg,fast_food,220,7.0,35.0,6.0,yes
+sandwich chicken,fast_food,250,12.0,32.0,8.0,no
+pasta white sauce,fast_food,180,5.0,25.0,7.0,yes
+pasta red sauce,fast_food,160,5.0,28.0,4.0,yes
+hakka noodles,fast_food,180,5.0,30.0,5.0,no
+manchurian veg,fast_food,210,8.0,25.0,10.0,yes
+manchurian chicken,fast_food,240,15.0,22.0,12.0,no
+spring rolls veg,fast_food,250,5.0,30.0,13.0,yes
+spring rolls chicken,fast_food,270,10.0,28.0,14.0,no
+onion rings,fast_food,350,5.0,35.0,22.0,yes
+mozzarella sticks,fast_food,350,15.0,20.0,22.0,yes
+taco veg,fast_food,230,7.0,30.0,10.0,yes
+taco chicken,fast_food,260,14.0,28.0,12.0,no
+hot dog,fast_food,290,10.0,25.0,17.0,no
+submarine sandwich veg,fast_food,230,8.0,38.0,6.0,yes
+submarine sandwich chicken,fast_food,260,14.0,34.0,8.0,no
+fried fish,fast_food,230,18.0,10.0,14.0,no
+chicken popcorn,fast_food,300,16.0,15.0,20.0,no
+chicken lollipop,fast_food,280,18.0,12.0,18.0,no
+chai,beverage,45,1.1,5.0,2.5,yes
+coffee with milk,beverage,50,1.5,6.0,2.0,yes
+black coffee,beverage,2,0.3,0.0,0.0,yes
+green tea,beverage,1,0.0,0.2,0.0,yes
+black tea,beverage,1,0.0,0.0,0.0,yes
+buttermilk salted,beverage,40,3.3,4.9,0.5,yes
+jaljeera,beverage,30,0.5,7.0,0.0,yes
+lemonade,beverage,25,0.1,6.5,0.0,yes
+coconut water,beverage,18,0.7,4.2,0.2,yes
+sugarcane juice,beverage,80,0.5,20.0,0.0,yes
+orange juice,beverage,45,0.7,10.4,0.2,yes
+apple juice,beverage,46,0.1,11.3,0.1,yes
+pomegranate juice,beverage,60,0.4,14.0,0.2,yes
+mango juice,beverage,55,0.2,13.5,0.1,yes
+coke,beverage,41,0.0,10.6,0.0,yes
+pepsi,beverage,41,0.0,10.6,0.0,yes
+sprite,beverage,38,0.0,9.9,0.0,yes
+fanta,beverage,43,0.0,11.0,0.0,yes
+energy drink,beverage,50,0.0,12.0,0.0,yes
+chocolate milkshake,beverage,120,3.5,20.0,3.0,yes
+strawberry milkshake,beverage,110,3.0,18.0,3.0,yes
+mango milkshake,beverage,115,3.0,19.0,3.0,yes
+badam milk,beverage,140,4.0,18.0,6.0,yes
+rose milk,beverage,110,2.5,20.0,2.0,yes
+parle g biscuit,snack,460,8.0,75.0,14.0,yes
+marie biscuit,snack,450,7.0,72.0,15.0,yes
+cream biscuit,snack,500,6.0,68.0,22.0,yes
+digestive biscuit,snack,480,7.0,65.0,20.0,yes
+cookie chocolate chip,snack,490,5.0,65.0,24.0,yes
+potato chips,snack,540,6.0,51.0,35.0,yes
+tortilla chips,snack,500,7.0,65.0,25.0,yes
+cheese balls,snack,550,8.0,45.0,38.0,yes
+popcorn salted,snack,387,12.0,78.0,5.0,yes
+popcorn caramel,snack,500,6.0,85.0,15.0,yes
+instant noodles maggi,snack,380,8.0,55.0,15.0,yes
+chocolate bar milk,snack,530,7.0,60.0,30.0,yes
+dark chocolate,snack,550,7.0,45.0,38.0,yes
+white chocolate,snack,540,5.0,59.0,32.0,yes
+candy,fast_food,390,0.0,98.0,0.0,yes
+gummy bears,fast_food,330,3.0,80.0,0.5,yes
+jelly,fast_food,60,0.5,14.0,0.0,yes
+cake vanilla,snack,350,5.0,45.0,18.0,yes
+cake chocolate,snack,380,5.5,50.0,20.0,yes
+donut,snack,450,5.0,50.0,25.0,yes
+muffin blueberry,snack,350,5.0,55.0,12.0,yes
+brownie,snack,450,4.0,55.0,25.0,yes
+croissant,snack,406,8.0,45.0,21.0,yes
+puff pastry veg,snack,350,6.0,35.0,22.0,yes
+puff pastry chicken,snack,380,10.0,33.0,24.0,no
+samosad,fast_food,270,4.5,31.0,14.0,yes
+chicken samosa,snack,300,12.0,30.0,16.0,no
+egg puff,snack,280,9.0,32.0,14.0,no
+vegetable puff,snack,300,8.0,34.0,16.0,yes
+chicken puff,snack,320,11.0,32.0,18.0,no
+aloo bonda,snack,260,4.0,30.0,14.0,yes
+gobi manchurian,snack,210,6.0,25.0,10.0,yes
+chilli chicken,snack,250,15.0,15.0,14.0,no
+chilli paneer,snack,230,12.0,18.0,12.0,yes
+sweet corn soup,beverage,80,3.0,15.0,1.5,yes
+hot and sour soup,beverage,70,2.5,12.0,1.5,no
+tomato soup,beverage,60,1.5,10.0,1.0,yes
+mushroom soup,beverage,70,2.0,9.0,2.5,yes
+chicken soup,beverage,75,6.0,8.0,3.0,no
+minestrone soup,beverage,55,2.5,9.0,1.0,yes
+curd rice,fast_food,150,4.5,27.0,2.5,yes
+lemon rice,fast_food,160,3.5,30.0,3.0,yes
+tomato rice,fast_food,155,3.8,29.0,2.8,yes
+coconut rice,fast_food,180,4.0,30.0,5.0,yes
+egg curry,meat,150,8.0,6.0,10.0,no
+chicken curry,meat,180,14.0,5.0,12.0,no
+mutton curry,meat,220,15.0,4.0,16.0,no
+fish curry,meat,130,13.0,4.0,7.0,no
+prawn curry,meat,120,12.0,5.0,6.0,no
+paneer butter masala,vegetable,200,9.0,10.0,14.0,yes
+palak paneer,vegetable,160,8.0,8.0,11.0,yes
+kadai paneer,vegetable,190,9.0,9.0,13.0,yes
+shahi paneer,vegetable,250,8.0,12.0,20.0,yes
+matar paneer,vegetable,180,9.0,12.0,11.0,yes
+aloo gobi,vegetable,120,3.0,15.0,6.0,yes
+aloo matar,vegetable,130,3.5,16.0,6.0,yes
+bhindi masala,vegetable,140,2.5,12.0,9.0,yes
+baingan bharta,vegetable,150,3.0,12.0,10.0,yes
+dum aloo,vegetable,180,3.0,20.0,10.0,yes
+malai kofta,vegetable,240,6.0,18.0,16.0,yes
+veg kolhapuri,vegetable,150,4.0,14.0,9.0,yes
+mixed vegetable sabzi,vegetable,110,3.0,12.0,6.0,yes
+sarson ka saag,vegetable,140,5.0,10.0,9.0,yes
+mushroom masala,vegetable,130,4.0,10.0,8.0,yes
+soyabean masala,vegetable,160,12.0,12.0,8.0,yes
+rajma masala,legume,140,7.0,18.0,5.0,yes
+kadhi pakora,legume,180,7.0,15.0,10.0,yes
+dal makhani,legume,170,7.0,18.0,8.0,yes
+dal tadka,legume,150,6.0,17.0,6.0,yes
+sambhar,legume,80,3.0,12.0,2.0,yes
+rasam,legume,40,1.0,6.0,0.5,yes
+dhansak,legume,140,7.0,19.0,5.0,yes
+undhiyu,vegetable,120,4.0,15.0,5.0,yes
+seb bhaji,vegetable,30,1.0,5.0,0.8,yes
+karela sabzi,vegetable,100,2.0,12.0,5.0,yes
+tindora sabzi,vegetable,90,2.0,10.0,5.0,yes
+dudhi sabzi,vegetable,60,1.0,8.0,3.0,yes
+parwal sabzi,vegetable,80,1.5,12.0,3.0,yes
+kathal sabzi,vegetable,110,2.5,15.0,5.0,yes
+chow chow sabzi,vegetable,70,1.5,10.0,2.5,yes
+mooli sabzi,vegetable,65,1.2,9.0,2.8,yes
+shalgam sabzi,vegetable,70,1.5,10.0,3.0,yes
+kamal kakdi sabzi,vegetable,80,2.0,12.0,2.5,yes
+surti papdi sabzi,vegetable,90,3.0,11.0,4.0,yes
+french beans sabzi,vegetable,70,2.0,9.0,3.0,yes
+cluster beans sabzi,vegetable,75,2.5,10.0,3.0,yes
+broad beans sabzi,vegetable,80,3.0,11.0,3.5,yes
+green garlic sabzi,vegetable,65,2.0,8.0,3.0,yes
+kohlrabi sabzi,vegetable,70,2.5,10.0,2.5,yes
+turnip sabzi,vegetable,70,1.5,10.0,3.0,yes
+zucchini sabzi,vegetable,50,1.5,6.0,2.0,yes
+brinjal fry,vegetable,150,2.0,12.0,11.0,yes
+potato fry,vegetable,170,2.5,18.0,10.0,yes
+raw banana fry,vegetable,140,1.5,20.0,6.0,yes
+ivy gourd fry,vegetable,100,1.5,10.0,6.0,yes
+drumstick fry,vegetable,90,2.0,8.0,5.0,yes
+peanut,legume,567,25.8,16.1,49.2,yes
+almond,legume,579,21.2,21.7,49.9,yes
+cashew,legume,553,18.2,30.2,43.8,yes
+walnut,legume,654,15.2,13.7,65.2,yes
+pistachio,legume,562,20.2,27.5,45.4,yes
+raisins,fruit,299,3.1,79.2,0.5,yes
+dates,fruit,282,2.5,70.0,0.4,yes
+fig,fruit,74,0.8,19.2,0.3,yes
+apricot,fruit,48,1.4,11.1,0.4,yes
+plum,fruit,46,0.7,11.4,0.3,yes
+peach,fruit,39,0.9,9.5,0.3,yes
+litchi,fruit,66,0.8,16.5,0.4,yes
+persimmon,fruit,70,0.6,18.6,0.2,yes
+pomelo,fruit,38,0.8,9.6,0.0,yes
+cantaloupe,fruit,34,0.8,8.2,0.2,yes
+honeydew,fruit,36,0.5,9.1,0.1,yes
+blackberry,fruit,43,1.4,9.6,0.5,yes
+raspberry,fruit,52,1.2,11.9,0.7,yes
+cranberry,fruit,46,0.4,12.2,0.1,yes
+jackfruit,fruit,95,1.7,23.2,0.6,yes
+breadfruit,fruit,103,1.1,27.1,0.2,yes
+coconut raw,fruit,354,3.3,15.2,33.5,yes
+coconut water,beverage,18,0.7,4.2,0.2,yes
+tender coconut pulp,fruit,80,1.5,7.0,5.0,yes
+star fruit,fruit,31,0.5,7.0,0.2,yes
+passion fruit,fruit,97,2.2,23.4,0.7,yes
+durian,fruit,147,1.5,27.1,5.3,yes
+rambutan,fruit,84,0.7,21.0,0.2,yes
+longan,fruit,60,1.3,15.0,0.1,yes
+mangosteen,fruit,73,0.5,17.9,0.6,yes
+soursop,fruit,66,1.0,16.8,0.3,yes
+sapodilla,fruit,83,0.4,20.0,1.1,yes
+tamarind,fruit,239,2.8,62.0,0.6,yes
+raw mango,fruit,60,0.8,15.0,0.4,yes
+green apple,fruit,52,0.3,14.0,0.2,yes
+red apple,fruit,52,0.3,14.0,0.2,yes
+golden apple,fruit,52,0.3,14.0,0.2,yes
+peeled potatoes,vegetable,77,2.0,17.5,0.1,yes
+baby corn,vegetable,30,3.0,5.0,0.5,yes
+artichoke,vegetable,47,3.3,10.5,0.2,yes
+leek,vegetable,61,1.5,14.2,0.3,yes
+chives,vegetable,30,3.3,4.4,0.7,yes
+shallots,vegetable,72,2.5,16.8,0.1,yes
+sprouts,vegetable,50,4.0,7.0,0.5,yes
+watercress,vegetable,11,2.3,1.3,0.1,yes
+arugula,vegetable,25,2.6,3.7,0.7,yes
+radicchio,vegetable,23,1.4,4.5,0.2,yes
+endive,vegetable,17,1.3,3.4,0.2,yes
+frisee,vegetable,15,1.0,3.0,0.2,yes
+kale,vegetable,49,4.3,8.8,0.9,yes
+collard greens,vegetable,32,3.0,5.6,0.5,yes
+mustard greens,vegetable,27,2.9,4.7,0.4,yes
+swiss chard,vegetable,19,1.8,3.7,0.2,yes
+beet greens,vegetable,22,2.2,4.3,0.1,yes
+turnip greens,vegetable,32,1.5,7.1,0.3,yes
+radish greens,vegetable,18,1.5,3.0,0.2,yes
+carrot greens,vegetable,25,2.0,4.5,0.3,yes
+celery root,vegetable,42,1.5,9.2,0.3,yes
+parsnip,vegetable,75,1.2,18.0,0.3,yes
+rutabaga,vegetable,38,1.1,8.6,0.2,yes
+jerusalem artichoke,vegetable,73,2.0,17.4,0.1,yes
+water chestnut,vegetable,97,1.4,23.9,0.1,yes
+lotus root,vegetable,74,2.6,17.2,0.1,yes
