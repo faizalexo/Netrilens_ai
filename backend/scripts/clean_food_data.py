@@ -1,6 +1,6 @@
 import csv
 
-INPUT_FILE = "food_data.csv"
+INPUT_FILE = "food_data2.csv"
 OUTPUT_FILE = "clean_food_data.csv"
 
 

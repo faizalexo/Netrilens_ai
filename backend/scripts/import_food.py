@@ -88,7 +88,7 @@ def import_food_data(csv_file):
 
 
 if __name__ == "__main__":
-    import_food_data("food_data2.csv")    #file ka path yahan daalna hai
+    import_food_data("food_data.csv")    #file ka path yahan daalna hai
 
 
 
