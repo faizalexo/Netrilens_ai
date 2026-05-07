@@ -1,27 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView } from "react-native";
-
+import { getGoals } from "../services/api";
 import { getTodayMeals, getSummary } from "../services/trackingService";
 
 export default function HomeScreen() {
   const [meals, setMeals] = useState([]);
   const [summary, setSummary] = useState(null);
-
+ const [goals, setGoals] = useState(null);
   useEffect(() => {
     loadData();
   }, []);
 
-  const loadData = async () => {
-    try {
-      const mealData = await getTodayMeals();
-      setMeals(mealData.meals);
+ const goalsData = await getGoals();
 
-      const summaryData = await getSummary();
-      setSummary(summaryData.totals);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+const loadData = async () => {
+  try {
+    const mealData = await getTodayMeals();
+    setMeals(mealData.meals);
+
+    const summaryData = await getSummary();
+    setSummary(summaryData.totals);
+
+    const goalsData = await getGoals(token);
+    setGoals(goalsData);
+
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   return (
     <ScrollView style={{ padding: 20 }}>

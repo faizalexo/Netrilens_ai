@@ -9,7 +9,6 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime, parse_date
 from django.core.exceptions import ObjectDoesNotExist
-
 from apps.food.models import FoodItem
 from .models import Meal
 
@@ -74,7 +73,7 @@ def create_meal_entry(
     if not meal_type:
         raise ValueError("meal_type is required")
 
-    grams = Decimal(str(_to_float(grams, "grams")))
+    grams = float(_to_float(grams, "grams"))
     eaten_at = _parse_eaten_at(eaten_at)
     meal_type = str(meal_type).strip().lower()
 
@@ -92,15 +91,24 @@ def create_meal_entry(
     except ObjectDoesNotExist:
         raise ValueError("Food not found")
 
-    # 🔥 Model will handle nutrition snapshot
+    # 🔥 CORRECT FIELDS
+    calories = food.calories_per_100g * grams / 100
+    protein = food.protein_per_100g * grams / 100
+    carbs = food.carbs_per_100g * grams / 100
+    fat = food.fat_per_100g * grams / 100
+
     return Meal.objects.create(
         user=user,
         food=food,
         grams=grams,
         meal_type=meal_type,
-        consumed_at=eaten_at,  # ⚠️ FIXED FIELD NAME
-    )
+        consumed_at=eaten_at,
 
+        calories=calories,
+        protein=protein,
+        carbs=carbs,
+        fat=fat,
+    )
 
 # ===============================
 # 🔥 LIST MEALS
@@ -135,26 +143,33 @@ def build_daily_summary(entries: QuerySet[Meal]) -> Dict:
     )
 
     meals = [
-        {
-            "id": entry.id,
-            "food": {
-                "id": entry.food.id if entry.food else None,
-                "name": entry.food_name,
-            },
-            "meal_type": entry.meal_type,
-            "grams": float(entry.grams),
-            "consumed_at": entry.consumed_at,
-            "nutrition": {
-                "calories": float(entry.calories),
-                "protein": float(entry.protein),
-                "carbs": float(entry.carbs),
-                "fat": float(entry.fat),
-            },
-        }
-        for entry in entries
-    ]
+    {
+        "id": entry.id,
 
-    return {
-        "totals": {k: round(float(v), 2) for k, v in totals.items()},
-        "meals": meals,
+        # 🔥 ADD THIS (important fix)
+        "food_name": entry.food.name if entry.food else "Food",
+
+        "food": {
+            "id": entry.food.id if entry.food else None,
+            "name": entry.food.name if entry.food else "Food",
+        },
+
+        "meal_type": entry.meal_type,
+        "grams": float(entry.grams),
+        "consumed_at": entry.consumed_at,
+
+        # 🔥 KEEP BOTH (compatibility)
+        "calories": float(entry.calories or 0),
+        "protein": float(entry.protein or 0),
+        "carbs": float(entry.carbs or 0),
+        "fat": float(entry.fat or 0),
+
+        "nutrition": {
+            "calories": float(entry.calories or 0),
+            "protein": float(entry.protein or 0),
+            "carbs": float(entry.carbs or 0),
+            "fat": float(entry.fat or 0),
+        },
     }
+    for entry in entries
+]

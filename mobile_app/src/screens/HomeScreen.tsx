@@ -1,14 +1,3 @@
-/**
- * NutriLens — Home Screen
- * app/(tabs)/index.tsx
- *
- * Stack: Expo Router · React Native · TypeScript
- * Dependencies:
- *   expo install react-native-svg
- *   expo install expo-linear-gradient
- *   expo install @expo-google-fonts/inter expo-font
- */
- 
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
@@ -29,9 +18,21 @@ import Svg, {
 } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
- 
+import { getSummary, getTodayMeals } from "../services/trackingService";
+import { getGoals } from "../services/api";
+import * as Haptics from 'expo-haptics';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // ─── Design Tokens ──────────────────────────────────────────────────────────
- 
+ useEffect(() => {
+  const setToken = async () => {
+    await AsyncStorage.setItem(
+      "token",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3MTk1ODA0LCJpYXQiOjE3NzcxMDk0MDQsImp0aSI6ImZjN2VmMmZhZDg4NDQ1NWE5ZWNhZWEyZmNiZTE4ZWI5IiwidXNlcl9pZCI6IjEifQ.3HpAGacCQ2lEcZvkt-bbKSPWkHCcYoTyWHznQF9ILsg"
+    );
+  };
+
+  setToken();
+}, []);
 const C = {
   bg0: '#0A0B0E',
   bg1: '#111318',
@@ -89,11 +90,8 @@ export interface AIInsight {
   gradientEnd: string;
 }
  
-interface HomeScreenProps {
+export interface HomeScreenProps {
   userName?: string;
-  summary?: NutritionSummary;
-  meals?: Meal[];
-  insights?: AIInsight[];
   onScanPress?: () => void;
   onAddMealPress?: () => void;
   onSeeAllMealsPress?: () => void;
@@ -179,51 +177,56 @@ function Header({ name }: { name: string }) {
  
 const RING_SIZE = 88;
 const RING_RADIUS = 36;
-const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS; // ≈ 226
- 
+const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
 function CalorieRing({ progress }: { progress: number }) {
+  // 🛡️ Clamp progress (0 → 1)
+  const safeProgress = Math.min(progress || 0, 1);
+
   const anim = useRef(new Animated.Value(0)).current;
- 
+  const [offset, setOffset] = useState(CIRCUMFERENCE);
+
   useEffect(() => {
     Animated.timing(anim, {
-      toValue: progress,
-      duration: 1000,
+      toValue: safeProgress,
+      duration: 900,
       useNativeDriver: false,
     }).start();
-  }, [progress]);
- 
-  const strokeDashoffset = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [CIRCUMFERENCE, 0],
-  });
- 
-  // react-native-svg doesn't accept Animated.Value directly on strokeDashoffset,
-  // so we use a JS-driven workaround with a listener → state.
-  const [offset, setOffset] = React.useState(CIRCUMFERENCE);
- 
-  useEffect(() => {
+
     const id = anim.addListener(({ value }) => {
       setOffset(CIRCUMFERENCE * (1 - value));
     });
+
     return () => anim.removeListener(id);
-  }, [anim]);
- 
+  }, [safeProgress]);
+
+  // 🎨 Dynamic color logic
+  const getColors = () => {
+    if (safeProgress < 0.7) return [C.accent, C.accent2];
+    if (safeProgress < 1) return ["#ffaa00", "#ffcc00"]; // yellow
+    return ["#ff4444", "#ff0000"]; // red
+  };
+
+  const [startColor, endColor] = getColors();
+
   const pct = Math.round(progress * 100);
- 
+  const isOver = progress > 1;
+
   return (
     <View style={s.ringWrap}>
       <Svg
         width={RING_SIZE}
         height={RING_SIZE}
         viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
-        style={{ transform: [{ rotate: '-90deg' }] }}
+        style={{ transform: [{ rotate: "-90deg" }] }}
       >
         <Defs>
           <SvgLinearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <Stop offset="0%" stopColor={C.accent} />
-            <Stop offset="100%" stopColor={C.accent2} />
+            <Stop offset="0%" stopColor={startColor} />
+            <Stop offset="100%" stopColor={endColor} />
           </SvgLinearGradient>
         </Defs>
+
         {/* Track */}
         <Circle
           cx={RING_SIZE / 2}
@@ -233,6 +236,7 @@ function CalorieRing({ progress }: { progress: number }) {
           stroke={C.bg4}
           strokeWidth={8}
         />
+
         {/* Progress */}
         <Circle
           cx={RING_SIZE / 2}
@@ -246,8 +250,24 @@ function CalorieRing({ progress }: { progress: number }) {
           strokeDashoffset={offset}
         />
       </Svg>
+
+      {/* 🔥 Center Text */}
       <View style={s.ringCenter}>
-        <Text style={s.ringPct}>{pct}%</Text>
+        <Text
+          style={[
+            s.ringPct,
+            isOver && { color: "#ff4444" } // red if exceeded
+          ]}
+        >
+          {pct}%
+        </Text>
+
+        {/* Optional label */}
+        {isOver && (
+          <Text style={{ fontSize: 10, color: "#ff4444" }}>
+            Over
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -262,11 +282,23 @@ interface MacroBarProps {
   unit?: string;
   gradientColors: [string, string];
 }
- 
-function MacroBar({ label, current, goal, unit = 'g', gradientColors }: MacroBarProps) {
-  const pct = Math.min(current / goal, 1);
+
+function MacroBar({
+  label,
+  current,
+  goal,
+  unit = "g",
+  gradientColors,
+}: MacroBarProps) {
+  // 🛡️ Safe values
+  const safeGoal = goal || 1;
+  const safeCurrent = current || 0;
+
+  const pct = Math.min(safeCurrent / safeGoal, 1);
+  const isOver = safeCurrent > safeGoal;
+
   const widthAnim = useRef(new Animated.Value(0)).current;
- 
+
   useEffect(() => {
     Animated.timing(widthAnim, {
       toValue: pct,
@@ -274,10 +306,21 @@ function MacroBar({ label, current, goal, unit = 'g', gradientColors }: MacroBar
       useNativeDriver: false,
     }).start();
   }, [pct]);
- 
+
+  // 🎨 Dynamic color logic
+  const getColor = () => {
+    if (pct < 0.7) return gradientColors;
+    if (pct < 1) return ["#ffaa00", "#ffcc00"]; // yellow
+    return ["#ff4444", "#ff0000"]; // red
+  };
+
+  const displayColors = getColor();
+
   return (
     <View style={s.macroItem}>
       <Text style={s.labelXs}>{label}</Text>
+
+      {/* 🔥 Progress Bar */}
       <View style={s.macroTrack}>
         <Animated.View
           style={[
@@ -285,33 +328,63 @@ function MacroBar({ label, current, goal, unit = 'g', gradientColors }: MacroBar
             {
               width: widthAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: ['0%', '100%'],
+                outputRange: ["0%", "100%"],
               }),
             },
           ]}
         >
           <LinearGradient
-            colors={gradientColors}
+            colors={displayColors as [string, string]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={StyleSheet.absoluteFill}
           />
         </Animated.View>
       </View>
+
+      {/* 🔢 Values */}
       <View style={s.macroValueRow}>
-        <Text style={s.macroValue}>{current}{unit}</Text>
-        <Text style={s.macroGoal}>/{goal}{unit}</Text>
+        <Text
+          style={[
+            s.macroValue,
+            isOver && { color: "#ff4444" } // 🔥 red if exceeded
+          ]}
+        >
+          {safeCurrent}
+          {unit}
+        </Text>
+
+        <Text style={s.macroGoal}>
+          /{safeGoal}
+          {unit}
+        </Text>
       </View>
+
+      {/* ⚡ Optional % */}
+      <Text style={{ fontSize: 10, opacity: 0.6 }}>
+        {Math.round(pct * 100)}%
+      </Text>
     </View>
   );
 }
  
-// ─── Calorie Card ─────────────────────────────────────────────────────────────
- 
+// ─── Calorie Card (FINAL SAFE VERSION) ───────────────────────────────────────
+
 function CalorieCard({ summary }: { summary: NutritionSummary }) {
-  const remaining = summary.caloriesGoal - summary.calories;
-  const progress = summary.calories / summary.caloriesGoal;
- 
+  if (!summary) return null;
+
+  // 🛡️ Safe values
+  const goal = summary.caloriesGoal || 1;
+  const consumed = summary.calories || 0;
+
+  // remaining (never negative)
+  const remaining = Math.max(goal - consumed, 0);
+
+  // progress clamp (0 → 1)
+  const progress = Math.min(consumed / goal, 1);
+
+  const isOver = consumed > goal;
+
   return (
     <View style={s.sectionPad}>
       <LinearGradient
@@ -320,41 +393,56 @@ function CalorieCard({ summary }: { summary: NutritionSummary }) {
         end={{ x: 1, y: 1 }}
         style={s.calorieCard}
       >
-        {/* Top row: numbers + ring */}
+        {/* 🔥 Top row */}
         <View style={s.calorieTopRow}>
           <View>
             <Text style={s.labelXs}>Calories Today</Text>
+
             <View style={s.calorieNumRow}>
               <Text style={s.calorieNum}>
-                {summary.calories.toLocaleString()}
+                {consumed.toLocaleString()}
               </Text>
-              <Text style={s.calorieGoal}>/ {summary.caloriesGoal.toLocaleString()}</Text>
+              <Text style={s.calorieGoal}>
+                / {goal.toLocaleString()}
+              </Text>
             </View>
-            <View style={s.badgeGreen}>
-              <Text style={s.badgeGreenText}>{remaining} remaining</Text>
+
+            {/* 🟢 remaining / 🔴 over */}
+            <View
+              style={[
+                s.badgeGreen,
+                isOver && { backgroundColor: '#ff4d4d' }
+              ]}
+            >
+              <Text style={s.badgeGreenText}>
+                {isOver
+                  ? `${(consumed - goal).toLocaleString()} over`
+                  : `${remaining.toLocaleString()} remaining`}
+              </Text>
             </View>
           </View>
+
           <CalorieRing progress={progress} />
         </View>
- 
-        {/* Macro bars */}
+
+        {/* 🔥 Macro bars */}
         <View style={s.macroRow}>
           <MacroBar
             label="Protein"
-            current={summary.protein}
-            goal={summary.proteinGoal}
+            current={summary.protein || 0}
+            goal={summary.proteinGoal || 1}
             gradientColors={[C.accent, C.accent2]}
           />
           <MacroBar
             label="Carbs"
-            current={summary.carbs}
-            goal={summary.carbsGoal}
+            current={summary.carbs || 0}
+            goal={summary.carbsGoal || 1}
             gradientColors={[C.accent3, C.accent2]}
           />
           <MacroBar
             label="Fat"
-            current={summary.fat}
-            goal={summary.fatGoal}
+            current={summary.fat || 0}
+            goal={summary.fatGoal || 1}
             gradientColors={[C.warn, C.danger]}
           />
         </View>
@@ -409,7 +497,7 @@ function QuickActions({ onScanPress, onAddMealPress }: QuickActionsProps) {
     </View>
   );
 }
- 
+
 // ─── Water Tracker ────────────────────────────────────────────────────────────
  
 function WaterTracker({
@@ -455,11 +543,54 @@ function WaterTracker({
 }
  
 // ─── AI Insight Card ──────────────────────────────────────────────────────────
- 
+const mapInsights = (rawInsights: string[]): AIInsight[] => {
+  const unique = [...new Set(rawInsights)];
+
+  return unique.map((text, index) => {
+    const lower = text.toLowerCase();
+
+    if (lower.includes("protein")) {
+      return {
+        id: "protein-" + index,
+        emoji: "💪",
+        title: "Protein Low",
+        body: text,
+        color: "#00ff88",
+        borderColor: "#00ff88",
+        gradientStart: "#0f2027",
+        gradientEnd: "#2c5364",
+      };
+    }
+
+    if (lower.includes("calorie")) {
+      return {
+        id: "calorie-" + index,
+        emoji: "🔥",
+        title: "Calories Alert",
+        body: text,
+        color: "#ffaa00",
+        borderColor: "#ffaa00",
+        gradientStart: "#3a1c71",
+        gradientEnd: "#d76d77",
+      };
+    }
+
+    return {
+      id: "general-" + index,
+      emoji: "⚡",
+      title: "Insight",
+      body: text,
+      color: "#ccc",
+      borderColor: "#555",
+      gradientStart: "#232526",
+      gradientEnd: "#414345",
+    };
+  });
+};
 function AIInsightCard({ insight }: { insight: AIInsight }) {
   return (
     <LinearGradient
-      colors={[insight.gradientStart, insight.gradientEnd]}
+      colors={[insight.gradientStart, insight.gradientEnd] as [string, string]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={[s.aiInsightCard, { borderColor: insight.borderColor }]}
@@ -467,10 +598,12 @@ function AIInsightCard({ insight }: { insight: AIInsight }) {
       <View style={s.aiInsightIconWrap}>
         <Text style={s.aiInsightIconText}>{insight.emoji}</Text>
       </View>
+
       <View style={s.aiInsightBody}>
         <Text style={[s.aiInsightTitle, { color: insight.color }]}>
           {insight.title}
         </Text>
+
         <Text style={s.aiInsightText}>{insight.body}</Text>
       </View>
     </LinearGradient>
@@ -503,6 +636,7 @@ function MealCard({ meal }: { meal: any }) {
     hour: "2-digit",
     minute: "2-digit",
   });
+  console.log("MEALS:", meal);
 
   return (
     <View style={styles.card}>
@@ -516,7 +650,7 @@ function MealCard({ meal }: { meal: any }) {
       {/* LEFT */}
       <View style={styles.info}>
         <Text style={styles.title}>
-          {meal.food?.name || "Food"}
+          {meal.food_name || "Food"}
         </Text>
 
         <Text style={styles.subtitle}>
@@ -527,11 +661,11 @@ function MealCard({ meal }: { meal: any }) {
       {/* RIGHT */}
       <View style={styles.right}>
         <Text style={styles.calories}>
-          {meal.nutrition?.calories ?? 0} kcal
+          {meal.calories ?? 0} kcal
         </Text>
 
         <Text style={styles.macros}>
-          P {meal.nutrition?.protein ?? 0}g · C {meal.nutrition?.carbs ?? 0}g
+          P {meal.protein ?? 0}g · C {meal.carbs ?? 0}g
         </Text>
       </View>
     </View>
@@ -540,68 +674,172 @@ function MealCard({ meal }: { meal: any }) {
  
 // ─── Main Home Screen ─────────────────────────────────────────────────────────
  
+import { useLocalSearchParams } from "expo-router";
+const params = useLocalSearchParams();
+
 export default function HomeScreen({
-  userName = 'Alex',
-  summary = DEFAULT_SUMMARY,
-  meals = DEFAULT_MEALS,
-  insights = DEFAULT_INSIGHTS,
+  userName = "Alex",
   onScanPress,
   onAddMealPress,
   onSeeAllMealsPress,
 }: HomeScreenProps) {
-  const router = useRouter();
+
+const router = useRouter();
+  const params = useLocalSearchParams();
+
+  // 🥇 STATE
+  const [summary, setSummary] = useState<NutritionSummary | null>(null);
+  const [meals, setMeals] = useState<Meal[]>([]);
+  const [insights, setInsights] = useState<AIInsight[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // 🥈 SAFE SUMMARY
+  const safeSummary = summary ?? {
+    calories: 0,
+    caloriesGoal: 1,
+    protein: 0,
+    proteinGoal: 1,
+    carbs: 0,
+    carbsGoal: 1,
+    fat: 0,
+    fatGoal: 1,
+    water: 0,
+    waterGoal: 3,
+  };
+
+  // 🥉 NAV HANDLERS
+  const handleScan = onScanPress ?? (() => router.push("/scan"));
+  const handleAddMeal = onAddMealPress ?? (() => router.push("/log"));
+  const handleSeeAll = onSeeAllMealsPress ?? (() => router.push("/log"));
+
+   // 🟢 INITIAL LOAD (MOST IMPORTANT FIX)
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // 🟡 REFRESH ONLY WHEN NEEDED
+  useEffect(() => {
+    if (params.refresh === "true") {
+      loadData();
+    }
+  }, [params.refresh]);
+
+  // 🔥 DATA LOADER
+  const loadData = async () => {
+    try {
+      setLoading(true);
+
+      const [summaryData, mealsData, goalsData] = await Promise.all([
+        getSummary(),
+        getTodayMeals(),
+        getGoals(),
+      ]);
+
+      console.log("MEALS DATA RAW:", mealsData);
  
-  const handleScan = onScanPress ?? (() => router.push('/scan'));
-  const handleAddMeal = onAddMealPress ?? (() => router.push('/log'));
-  const handleSeeAll = onSeeAllMealsPress ?? (() => router.push('/log'));
- 
+
+    const formattedInsights = mapInsights(goalsData?.insights || []);
+    setInsights(formattedInsights);
+
+    const totals = summaryData?.totals || {};
+
+    const mergedSummary = {
+      calories: totals.calories || 0,
+      protein: totals.protein || 0,
+      carbs: totals.carbs || 0,
+      fat: totals.fat || 0,
+
+      caloriesGoal: goalsData?.calories || 0,
+      proteinGoal: goalsData?.protein || 0,
+      carbsGoal: goalsData?.carbs || 0,
+      fatGoal: goalsData?.fats || 0,
+
+      water: 0,          
+      waterGoal: 3,  
+    };
+
+    setSummary(mergedSummary);
+    setMeals(mealsData?.meals || []);
+    console.log("MEALS STATE:", mealsData?.meals);
+  } catch (err) {
+    console.log("LOAD ERROR:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+// 🥈 THEN CONDITIONAL UI
+if (loading) {
   return (
-    <View style={s.root}>
-      <StatusBar barStyle="light-content" backgroundColor={C.bg0} />
- 
-      <ScrollView
-        style={s.scroll}
-        contentContainerStyle={s.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <Header name={userName} />
- 
-        {/* Calorie Card + Macro Bars */}
-        <CalorieCard summary={summary} />
- 
-        {/* Quick Actions */}
-        <QuickActions onScanPress={handleScan} onAddMealPress={handleAddMeal} />
- 
-        {/* Water Tracker */}
-        <WaterTracker consumed={summary.water} goal={summary.waterGoal} />
- 
-        {/* AI Insight */}
+    <Text style={{ color: "white", marginTop: 50 }}>
+      Loading...
+    </Text>
+  );
+}
+
+
+
+  return (
+  <View style={s.root}>
+    <StatusBar barStyle="light-content" backgroundColor={C.bg0} />
+
+    <ScrollView
+      style={s.scroll}
+      contentContainerStyle={s.scrollContent}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Header */}
+      <Header name={userName} />
+
+      {/* 🔥 CALORIES + MACROS */}
+      <CalorieCard summary={safeSummary} />
+
+      {/* ACTIONS */}
+      <QuickActions
+        onScanPress={handleScan}
+        onAddMealPress={handleAddMeal}
+      />
+
+      {/* 💧 WATER */}
+      <WaterTracker
+        consumed={safeSummary.water}
+        goal={safeSummary.waterGoal}
+      />
+
+      {/* 🤖 AI INSIGHTS */}
+      {insights.length > 0 && (
         <View style={[s.sectionPad, { marginBottom: 14 }]}>
           {insights.map((ins) => (
             <AIInsightCard key={ins.id} insight={ins} />
           ))}
         </View>
- 
-        {/* Recent Meals */}
-        <View style={s.sectionPad}>
-          <View style={s.mealsHeader}>
-            <Text style={s.h3}>Recent Meals</Text>
-            <TouchableOpacity onPress={handleSeeAll} activeOpacity={0.7}>
-              <Text style={s.seeAll}>See all</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={s.mealsList}>
-            {meals.map((meal) => (
-              <MealCard key={meal.id} meal={meal} />
-              
-            ))}
-          </View>
+      )}
+
+      {/* 🍽️ MEALS */}
+      <View style={s.sectionPad}>
+        <View style={s.mealsHeader}>
+          <Text style={s.h3}>Recent Meals</Text>
+          <TouchableOpacity onPress={handleSeeAll}>
+            <Text style={s.seeAll}>See all</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-    </View>
-    
-  );
+
+        <View style={s.mealsList}>
+          {meals.length > 0 ? (
+            meals.map((meal) => (
+              <MealCard key={meal.id} meal={meal} />
+            ))
+          ) : (
+            <Text style={{ color: "#888", marginTop: 10 }}>
+              No meals added yet 🍽️
+            </Text>
+          )}
+        </View>
+      </View>
+    </ScrollView>
+  </View>
+);
 }
  
 // ─── Styles ───────────────────────────────────────────────────────────────────

@@ -12,7 +12,7 @@ import {
 
 import { searchFood } from "../services/foodService";
 import { calculateNutrition } from "../services/nutritionService";
-
+import { useNavigation } from "@react-navigation/native";
 export default function ScanScreen() {
   const [query, setQuery] = useState("");
   const [foods, setFoods] = useState([]);
@@ -21,7 +21,7 @@ export default function ScanScreen() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const navigation = useNavigation();
   const handleSearch = async () => {
     try {
       setError("");
@@ -139,9 +139,16 @@ export default function ScanScreen() {
           <Button
           title="Add to Meal"
           onPress={async () => {
-            await addMeal(selectedFood.id, grams, "lunch");
-           alert("Meal added");
-           }}
+            try {
+              await addMeal(selectedFood.id, grams, "lunch");
+
+              alert("Meal added");
+
+              navigation.navigate("Home", { refresh: true }); // 👈 IMPORTANT
+            } catch (err) {
+              console.log(err);
+            }
+          }} 
          />
         </View>
       ) : null}

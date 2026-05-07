@@ -18,3 +18,13 @@ export const addMeal = async (data: {
 
   return res.json();
 };
+
+export const getTodayMeals = async () => {
+  const res = await fetch("http://192.168.1.4:8000/api/tracking/today/");
+  return res.json();
+};
+
+export const getSummary = async () => {
+  const res = await fetch("http://192.168.1.4:8000/api/tracking/summary/");
+  return res.json();
+};

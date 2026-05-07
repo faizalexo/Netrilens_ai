@@ -1,15 +1,14 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from .models import UserProfile
 from .utils import calculate_goals
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 
 # 🥇 SIGNUP
@@ -19,19 +18,11 @@ def signup(request):
     email = request.data.get('email')
     password = request.data.get('password')
 
-    # ✅ validation
     if not username or not email or not password:
-        return Response(
-            {"error": "All fields are required"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": "All fields required"}, status=400)
 
-    # ✅ duplicate check
     if User.objects.filter(username=username).exists():
-        return Response(
-            {"error": "Username already exists"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": "Username exists"}, status=400)
 
     user = User.objects.create_user(
         username=username,
@@ -39,10 +30,7 @@ def signup(request):
         password=password
     )
 
-    return Response(
-        {"message": "User created successfully"},
-        status=status.HTTP_201_CREATED
-    )
+    return Response({"message": "User created"}, status=201)
 
 
 # 🥈 LOGIN
@@ -74,40 +62,36 @@ def login(request):
 
 
 # 🥉 CREATE PROFILE
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_profile(request):
-    user = request.user
-
-    # ✅ already exists check
-    if UserProfile.objects.filter(user=user).exists():
-        return Response(
-            {"error": "Profile already exists"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
     try:
+        print("🔥 HIT")
+        print("DATA:", request.data)
+        print("USER:", request.user)
+
+        user = request.user
+
+        if UserProfile.objects.filter(user=user).exists():
+            return Response({"error": "Profile already exists"}, status=400)
+
         profile = UserProfile.objects.create(
             user=user,
-             age=request.data.get('age'),
-             gender=request.data.get('gender'),
-             height=request.data.get('height'),
-             weight=request.data.get('weight'),
-             activity_level=request.data.get('activity_level'),
-             goal=request.data.get('goal')
+            age=request.data.get('age'),
+            gender=request.data.get('gender'),
+            height=request.data.get('height'),
+            weight=request.data.get('weight'),
+            activity_level=request.data.get('activity_level'),
+            goal=request.data.get('goal')
         )
 
-        return Response(
-            {"message": "Profile created successfully"},
-            status=status.HTTP_201_CREATED
-        )
+        return Response({"message": "Profile created"})
 
     except Exception as e:
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
+        return Response({
+            "error": str(e)
+        }, status=500)
 
 # 🏅 GET GOALS (🔥 yaha use hoga calculate_goals)
 @api_view(['GET'])
