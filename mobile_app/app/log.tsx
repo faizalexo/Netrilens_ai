@@ -31,13 +31,51 @@ export default function LogScreen() {
 
   // 🔍 SEARCH
   const handleSearch = async () => {
-    if (!query.trim()) return;
+
+    const trimmedQuery =
+      query.trim();
+
+    if (!trimmedQuery) {
+
+      Alert.alert(
+        "Validation",
+        "Please enter a food name"
+      );
+
+      return;
+    }
 
     try {
-      const res = await searchFood(query);
-      setFoods(res);
-    } catch {
-      Alert.alert("Error", "Food search failed");
+
+      const res =
+        await searchFood(trimmedQuery);
+
+      console.log(
+        "FOOD SEARCH RAW:",
+        JSON.stringify(res, null, 2)
+      );
+
+      const foodsData =
+        Array.isArray(res)
+          ? res
+          : res?.foods
+          ?? res?.results
+          ?? res?.data
+          ?? [];
+
+      setFoods(foodsData);
+
+    } catch (error) {
+
+      console.log(
+        "SEARCH ERROR:",
+        error
+      );
+
+      Alert.alert(
+        "Error",
+        "Food search failed"
+      );
     }
   };
 
@@ -63,7 +101,7 @@ export default function LogScreen() {
       queryClient.invalidateQueries({ queryKey: ["summary"] });
 
       Alert.alert("Success", "Meal added");
-      router.back();
+      router.replace("/(tabs)?refresh=true");
     } catch {
       Alert.alert("Error", "Failed to add meal");
     }
@@ -116,16 +154,52 @@ export default function LogScreen() {
       {/* 🍽 FOOD LIST */}
       <FlatList
         data={foods}
-        keyExtractor={(item) => item.id.toString()}
+
+        keyExtractor={(item) =>
+          String(item.id)
+        }
+
+        keyboardShouldPersistTaps="handled"
+
+        showsVerticalScrollIndicator={false}
+
+        contentContainerStyle={{
+          paddingBottom: 20,
+        }}
+
+        ListEmptyComponent={
+          <Text
+            style={{
+              color: "#888",
+              textAlign: "center",
+              marginTop: 20,
+            }}
+          >
+            No foods found
+          </Text>
+        }
+
         renderItem={({ item }) => (
+
           <TouchableOpacity
             style={[
               styles.foodItem,
-              selectedFood?.id === item.id && styles.selectedFood,
+
+              selectedFood?.id === item.id &&
+              styles.selectedFood,
             ]}
-            onPress={() => setSelectedFood(item)}
+
+            onPress={() =>
+              setSelectedFood(item)
+            }
+
+            activeOpacity={0.8}
           >
-            <Text style={styles.foodText}>{item.name}</Text>
+
+            <Text style={styles.foodText}>
+              {item.name}
+            </Text>
+
           </TouchableOpacity>
         )}
       />

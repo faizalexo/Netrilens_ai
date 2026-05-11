@@ -786,10 +786,13 @@ import { useLocalSearchParams } from "expo-router";
 
 export default function HomeScreen({
 
+
+
   onScanPress,
   onAddMealPress,
   onSeeAllMealsPress,
 }: HomeScreenProps) {
+  console.log("HOME SCREEN RENDERED");
 
   const router = useRouter();
 
@@ -835,146 +838,282 @@ export default function HomeScreen({
   const handleAddMeal = onAddMealPress ?? (() => router.push("/log"));
   const handleSeeAll = onSeeAllMealsPress ?? (() => router.push("/log"));
 
+
   // 🟢 INITIAL LOAD (MOST IMPORTANT FIX)
   useEffect(() => {
-    loadData();
+
+    const initialize = async () => {
+
+      try {
+
+        const token = await AsyncStorage.getItem(
+          "@auth_access_token"
+        );
+
+        console.log("HOME TOKEN:", token);
+
+        if (!token) {
+          console.log("NO TOKEN FOUND");
+          return;
+        }
+
+        await loadData();
+
+      } catch (error) {
+
+        console.log("INIT ERROR:", error);
+      }
+    };
+
+    initialize();
+
+  }, []);
+
+  useEffect(() => {
+
+    const loadUser = async () => {
+
+      try {
+
+        const user =
+          await AsyncStorage.getItem(
+            "@auth_user"
+          );
+
+        if (user) {
+
+          const parsedUser =
+            JSON.parse(user);
+
+          console.log(
+            "STORED USER:",
+            parsedUser
+          );
+
+          setUserName(
+            parsedUser.username || "User"
+          );
+        }
+
+      } catch (error) {
+
+        console.log(
+          "USER LOAD ERROR:",
+          error
+        );
+      }
+    };
+
+    loadUser();
+
   }, []);
 
   // 🟡 REFRESH ONLY WHEN NEEDED
   useEffect(() => {
-    if (params.refresh === "true") {
+
+    const refreshData = async () => {
+
+      try {
+
+        const token =
+          await AsyncStorage.getItem(
+            "@auth_access_token"
+          );
+
+        console.log(
+          "REFRESH TOKEN:",
+          token
+        );
+
+        if (!token) {
+          return;
+        }
+
+        if (params.refresh === "true") {
+
+          await loadData();
+        }
+
+      } catch (error) {
+
+        console.log(
+          "REFRESH ERROR:",
+          error
+        );
+      }
+    };
+
+    refreshData();
+
+  }, [params.refresh]);;
+
+
+  useEffect(() => {
+
+    if (
+      params.refresh === "true"
+    ) {
+
+      console.log(
+        "REFRESHING HOME DATA"
+      );
+
       loadData();
     }
+
   }, [params.refresh]);
 
   // 🔥 DATA LOADER
   const loadData = async () => {
+
     try {
+
       setLoading(true);
 
-      const [
-        summaryResponse,
-        mealsResponse,
-        goalsResponse,
-      ] = await Promise.all([
-        getSummary(),
-        getTodayMeals(),
-        getGoals(),
-      ]);
+      console.log("LOAD DATA START");
 
-      console.log(
-        "SUMMARY RESPONSE:",
-        summaryResponse
-      );
-      setUserName(
-        summaryResponse?.user_name
-        || "User"
-      );
+      let summaryResponse = null;
+      let mealsResponse = null;
+      let goalsResponse = null;
 
-      console.log(
-        "MEALS RESPONSE:",
-        mealsResponse
-      );
+      // ─────────────────────────────
+      // SUMMARY
+      // ─────────────────────────────
 
-      console.log(
-        "GOALS RESPONSE:",
-        goalsResponse
-      );
+      try {
 
-      /*
-      |--------------------------------------------------------------------------
-      | SAFE DATA EXTRACTION
-      |--------------------------------------------------------------------------
-      */
+        summaryResponse =
+          await getSummary();
 
+        console.log(
+          "SUMMARY RESPONSE:",
+          summaryResponse
+        );
 
+        setUserName(
+          summaryResponse?.user_name || "User"
+        );
 
+      } catch (error) {
 
+        console.log(
+          "SUMMARY ERROR:",
+          error
+        );
+      }
+
+      // ─────────────────────────────
+      // MEALS
+      // ─────────────────────────────
+
+      try {
+
+        mealsResponse =
+          await getTodayMeals();
+
+        console.log(
+          "MEALS RESPONSE:",
+          mealsResponse
+        );
+
+      } catch (error) {
+
+        console.log(
+          "MEALS ERROR:",
+          error
+        );
+      }
+
+      // ─────────────────────────────
+      // GOALS
+      // ─────────────────────────────
+
+      try {
+
+        goalsResponse =
+          await getGoals();
+
+        console.log(
+          "GOALS RESPONSE:",
+          goalsResponse
+        );
+
+      } catch (error) {
+
+        console.log(
+          "GOALS ERROR:",
+          error
+        );
+      }
+
+      // ─────────────────────────────
+      // SAFE DATA
+      // ─────────────────────────────
+
+      const totals =
+        summaryResponse?.totals ?? {};
+
+      const meals =
+        mealsResponse?.data?.meals ?? [];
 
       const goalsData =
-        goalsResponse?.success
-          ? goalsResponse.data
-          : null;
+        goalsResponse ?? {};
 
-      /*
-      |--------------------------------------------------------------------------
-      | INSIGHTS
-      |--------------------------------------------------------------------------
-      */
+      // ─────────────────────────────
+      // INSIGHTS
+      // ─────────────────────────────
 
       const formattedInsights =
-        mapInsights(
-          goalsData?.insights || []
-        );
+        mapInsights?.(
+          goalsData?.insights ?? []
+        ) ?? [];
 
       setInsights(formattedInsights);
 
-
-
-      /*
-      |--------------------------------------------------------------------------
-      | TOTALS
-      |--------------------------------------------------------------------------
-      */
-
-
-      const totals =
-        summaryResponse?.totals || {};
-
-      const meals =
-        mealsResponse?.meals || [];
-
-      const goals =
-        goalsResponse?.data || {};
-      /*
-      |--------------------------------------------------------------------------
-      | MERGED SUMMARY
-      |--------------------------------------------------------------------------
-      */
+      // ─────────────────────────────
+      // MERGED SUMMARY
+      // ─────────────────────────────
 
       const mergedSummary = {
+
         calories:
-          totals.calories || 0,
+          totals?.calories ?? 0,
 
         protein:
-          totals.protein || 0,
+          totals?.protein ?? 0,
 
         carbs:
-          totals.carbs || 0,
+          totals?.carbs ?? 0,
 
         fat:
-          totals.fat || 0,
+          totals?.fat ?? 0,
 
         caloriesGoal:
-          goalsResponse?.data?.calories || 0,
+          goalsData?.calories ?? 0,
 
         proteinGoal:
-          goalsResponse?.data?.protein || 0,
+          goalsData?.protein ?? 0,
 
         carbsGoal:
-          goalsResponse?.data?.carbs || 0,
+          goalsData?.carbs ?? 0,
 
         fatGoal:
-          goalsResponse?.data?.fats || 0,
+          goalsData?.fats ?? 0,
 
         water:
-          totals.water || 0,
+          totals?.water ?? 0,
 
         waterGoal:
-          goalsResponse?.data?.waterGoal || 3,
+          goalsData?.waterGoal ?? 3,
       };
 
-      /*
-      |--------------------------------------------------------------------------
-      | UPDATE STATE
-      |--------------------------------------------------------------------------
-      */
+      // ─────────────────────────────
+      // UPDATE STATE
+      // ─────────────────────────────
 
       setSummary(mergedSummary);
 
-      setMeals(
-        mealsResponse?.data?.meals || []
-      )
+      setMeals(meals);
 
       console.log(
         "FINAL SUMMARY:",
@@ -983,15 +1122,22 @@ export default function HomeScreen({
 
       console.log(
         "FINAL MEALS:",
-        mealsResponse?.data?.meals
+        meals
       );
 
     } catch (err) {
+
       console.log(
         "LOAD ERROR:",
         err
       );
+
     } finally {
+
+      console.log(
+        "SETTING LOADING FALSE"
+      );
+
       setLoading(false);
     }
   };

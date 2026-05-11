@@ -139,92 +139,7 @@ const processQueue = (
 // RESPONSE INTERCEPTOR
 // ─────────────────────────────────────────────────────────────
 
-api.interceptors.response.use(
-  (response: AxiosResponse) => response,
 
-  async (error: AxiosError) => {
-    const originalRequest =
-      error.config as RetryAxiosRequestConfig;
-
-    // Token expired
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry
-    ) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({
-            resolve: (token: string) => {
-              if (originalRequest.headers) {
-                originalRequest.headers.Authorization =
-                  `Bearer ${token}`;
-              }
-
-              resolve(api(originalRequest));
-            },
-            reject,
-          });
-        });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        const refreshToken =
-          await tokenStorage.getRefreshToken();
-
-        if (!refreshToken) {
-          throw new Error("No refresh token available");
-        }
-
-        // Refresh request
-        const response = await axios.post<RefreshResponse>(
-          `${BASE_URL}/token/refresh/`,
-          {
-            refresh: refreshToken,
-          }
-        );
-
-        const newAccessToken = response.data.access;
-
-        // Save new token
-        await AsyncStorage.setItem(
-          STORAGE_KEYS.ACCESS_TOKEN,
-          newAccessToken
-        );
-
-        // Update headers
-        api.defaults.headers.common.Authorization =
-          `Bearer ${newAccessToken}`;
-
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization =
-            `Bearer ${newAccessToken}`;
-        }
-
-        processQueue(null, newAccessToken);
-
-        return api(originalRequest);
-
-      } catch (refreshError) {
-
-        processQueue(refreshError, null);
-
-        // Logout user if refresh fails
-        await tokenStorage.clearAll();
-
-        return Promise.reject(refreshError);
-
-      } finally {
-
-        isRefreshing = false;
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
 
 // ─────────────────────────────────────────────────────────────
 // AUTH HELPERS
@@ -282,26 +197,7 @@ if (__DEV__) {
     return config;
   });
 
-  api.interceptors.response.use(
-    (response) => {
-
-      console.log(
-        `✅ API RESPONSE: ${response.status} ${response.config.url}`
-      );
-
-      return response;
-    },
-
-    (error) => {
-
-      console.log(
-        "❌ API ERROR:",
-        error?.response?.data || error.message
-      );
-
-      return Promise.reject(error);
-    }
-  );
+  
 }
 export const getGoals = async () => {
   try {

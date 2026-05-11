@@ -375,16 +375,35 @@ export default function LoginScreen() {
             api.defaults.headers.common[
                 "Authorization"
             ] = `Bearer ${access}`;
-            // 🔥 Save fresh user data
+
             await AsyncStorage.multiSet([
                 ["@auth_access_token", access],
                 ["@auth_refresh_token", refresh],
                 ["@auth_user", JSON.stringify(user)],
             ]);
 
-            console.log("LOGGED IN USER:", user);
+            // 🔥 VERIFY TOKEN SAVED
+            const savedToken =
+                await AsyncStorage.getItem(
+                    "@auth_access_token"
+                );
 
-            router.replace("/");
+            console.log(
+                "SAVED TOKEN:",
+                savedToken
+            );
+
+            console.log(
+                "LOGGED IN USER:",
+                user
+            );
+
+            // 🔥 small delay
+            setTimeout(() => {
+
+                router.replace("/(tabs)");
+
+            }, 300);
 
         } catch (err: unknown) {
 

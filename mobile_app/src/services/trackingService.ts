@@ -12,8 +12,12 @@ const BASE_URL =
 const getAuthHeaders = async () => {
   const token =
     await AsyncStorage.getItem(
-      "access"
+      "@auth_access_token"
     );
+  console.log(
+    "TRACKING TOKEN:",
+    token
+  );
 
   return {
     "Content-Type":
