@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
+  Alert,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
@@ -22,17 +23,15 @@ import { getSummary, getTodayMeals } from "../services/trackingService";
 import { getGoals } from "../services/api";
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  logoutUser,
+} from "../services/api";
 // ─── Design Tokens ──────────────────────────────────────────────────────────
- useEffect(() => {
-  const setToken = async () => {
-    await AsyncStorage.setItem(
-      "token",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3MTk1ODA0LCJpYXQiOjE3NzcxMDk0MDQsImp0aSI6ImZjN2VmMmZhZDg4NDQ1NWE5ZWNhZWEyZmNiZTE4ZWI5IiwidXNlcl9pZCI6IjEifQ.3HpAGacCQ2lEcZvkt-bbKSPWkHCcYoTyWHznQF9ILsg"
-    );
-  };
-
-  setToken();
-}, []);
+const formatNumber = (
+  value?: number
+) => {
+  return Math.round(value || 0);
+};
 const C = {
   bg0: '#0A0B0E',
   bg1: '#111318',
@@ -48,12 +47,12 @@ const C = {
   warn: '#FFB347',
   danger: '#FF6B6B',
 } as const;
- 
+
 const CARD_R = 20;
 const SM_R = 12;
- 
+
 // ─── Types ───────────────────────────────────────────────────────────────────
- 
+
 export interface NutritionSummary {
   calories: number;
   caloriesGoal: number;
@@ -66,7 +65,7 @@ export interface NutritionSummary {
   water: number;       // litres consumed
   waterGoal: number;   // litres goal
 }
- 
+
 export interface Meal {
   id: number;
   food_name: string;
@@ -78,7 +77,7 @@ export interface Meal {
   time?: string;        // e.g. "8:30 AM"
   emoji?: string;
 }
- 
+
 export interface AIInsight {
   id: string;
   emoji: string;
@@ -89,16 +88,16 @@ export interface AIInsight {
   gradientStart: string;
   gradientEnd: string;
 }
- 
+
 export interface HomeScreenProps {
   userName?: string;
   onScanPress?: () => void;
   onAddMealPress?: () => void;
   onSeeAllMealsPress?: () => void;
 }
- 
+
 // ─── Default / Demo Data ─────────────────────────────────────────────────────
- 
+
 const DEFAULT_SUMMARY: NutritionSummary = {
   calories: 1640,
   caloriesGoal: 2100,
@@ -111,7 +110,7 @@ const DEFAULT_SUMMARY: NutritionSummary = {
   water: 1.8,
   waterGoal: 2.5,
 };
- 
+
 const DEFAULT_MEALS: Meal[] = [
   {
     id: 1,
@@ -136,7 +135,7 @@ const DEFAULT_MEALS: Meal[] = [
     emoji: '🥗',
   },
 ];
- 
+
 const DEFAULT_INSIGHTS: AIInsight[] = [
   {
     id: '1',
@@ -149,32 +148,141 @@ const DEFAULT_INSIGHTS: AIInsight[] = [
     gradientEnd: 'rgba(79,255,176,0.06)',
   },
 ];
- 
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
- 
+
 /** Greeting header row with avatar */
 function Header({ name }: { name: string }) {
-  const initial = name.charAt(0).toUpperCase();
+
+  const router = useRouter();
+
+  const initial =
+    name.charAt(0).toUpperCase();
+
+  const handleProfilePress =
+    async () => {
+
+      const token =
+        await AsyncStorage.getItem(
+          "access"
+        );
+
+      // USER LOGGED IN
+      if (token) {
+
+        Alert.alert(
+          "Account",
+          "Choose an option",
+          [
+            {
+              text: "Profile",
+              onPress: () => {
+                console.log("PROFILE");
+              },
+            },
+
+            {
+              text: "Settings",
+              onPress: () => {
+                console.log("SETTINGS");
+              },
+            },
+
+            {
+              text: "Logout",
+              style: "destructive",
+
+              onPress: async () => {
+
+                await logoutUser();
+
+                router.replace(
+                  "/login"
+                );
+              },
+            },
+
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+          ]
+        );
+
+      }
+
+      // USER NOT LOGGED IN
+      else {
+
+        Alert.alert(
+          "Authentication",
+          "Login to continue",
+          [
+            {
+              text: "Login",
+
+              onPress: () =>
+                router.push(
+                  "/login"
+                ),
+            },
+
+            {
+              text: "Create Account",
+
+              onPress: () =>
+                router.push(
+                  "/register"
+                ),
+            },
+
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+          ]
+        );
+      }
+    };
+
   return (
     <View style={s.headerRow}>
+
       <View>
-        <Text style={s.labelXs}>Good morning</Text>
-        <Text style={s.headerName}>{name} 👋</Text>
+        <Text style={s.labelXs}>
+          Good morning
+        </Text>
+
+        <Text style={s.headerName}>
+          {name} 👋
+        </Text>
       </View>
-      <LinearGradient
-        colors={[C.accent3, C.accent2]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={s.avatar}
+
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={handleProfilePress}
       >
-        <Text style={s.avatarText}>{initial}</Text>
-      </LinearGradient>
+        <LinearGradient
+          colors={[
+            C.accent3,
+            C.accent2
+          ]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={s.avatar}
+        >
+          <Text style={s.avatarText}>
+            {initial}
+          </Text>
+        </LinearGradient>
+      </TouchableOpacity>
+
     </View>
   );
 }
- 
+
 // ─── Animated Circular Ring ───────────────────────────────────────────────────
- 
+
 const RING_SIZE = 88;
 const RING_RADIUS = 36;
 const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
@@ -272,9 +380,9 @@ function CalorieRing({ progress }: { progress: number }) {
     </View>
   );
 }
- 
+
 // ─── Animated Macro Bar ───────────────────────────────────────────────────────
- 
+
 interface MacroBarProps {
   label: string;
   current: number;
@@ -367,7 +475,7 @@ function MacroBar({
     </View>
   );
 }
- 
+
 // ─── Calorie Card (FINAL SAFE VERSION) ───────────────────────────────────────
 
 function CalorieCard({ summary }: { summary: NutritionSummary }) {
@@ -400,10 +508,10 @@ function CalorieCard({ summary }: { summary: NutritionSummary }) {
 
             <View style={s.calorieNumRow}>
               <Text style={s.calorieNum}>
-                {consumed.toLocaleString()}
+                {Math.round(consumed).toLocaleString()}
               </Text>
               <Text style={s.calorieGoal}>
-                / {goal.toLocaleString()}
+                / {Math.round(goal).toLocaleString()}
               </Text>
             </View>
 
@@ -416,8 +524,8 @@ function CalorieCard({ summary }: { summary: NutritionSummary }) {
             >
               <Text style={s.badgeGreenText}>
                 {isOver
-                  ? `${(consumed - goal).toLocaleString()} over`
-                  : `${remaining.toLocaleString()} remaining`}
+                  ? `${Math.round(consumed - goal).toLocaleString()} over`
+                  : `${Math.round(remaining).toLocaleString()} remaining`}
               </Text>
             </View>
           </View>
@@ -450,14 +558,14 @@ function CalorieCard({ summary }: { summary: NutritionSummary }) {
     </View>
   );
 }
- 
+
 // ─── Quick Actions ────────────────────────────────────────────────────────────
- 
+
 interface QuickActionsProps {
   onScanPress: () => void;
   onAddMealPress: () => void;
 }
- 
+
 function QuickActions({ onScanPress, onAddMealPress }: QuickActionsProps) {
   return (
     <View style={[s.sectionPad, s.quickActionsContainer]}>
@@ -477,7 +585,7 @@ function QuickActions({ onScanPress, onAddMealPress }: QuickActionsProps) {
           <Text style={s.labelSm}>AI-powered</Text>
         </LinearGradient>
       </TouchableOpacity>
- 
+
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={onAddMealPress}
@@ -499,7 +607,7 @@ function QuickActions({ onScanPress, onAddMealPress }: QuickActionsProps) {
 }
 
 // ─── Water Tracker ────────────────────────────────────────────────────────────
- 
+
 function WaterTracker({
   consumed,
   goal,
@@ -510,7 +618,7 @@ function WaterTracker({
   const totalBars = 5;
   const filledBars = Math.round((consumed / goal) * totalBars);
   const pct = Math.round((consumed / goal) * 100);
- 
+
   return (
     <View style={s.sectionPad}>
       <View style={s.waterCard}>
@@ -541,7 +649,7 @@ function WaterTracker({
     </View>
   );
 }
- 
+
 // ─── AI Insight Card ──────────────────────────────────────────────────────────
 const mapInsights = (rawInsights: string[]): AIInsight[] => {
   const unique = [...new Set(rawInsights)];
@@ -609,16 +717,16 @@ function AIInsightCard({ insight }: { insight: AIInsight }) {
     </LinearGradient>
   );
 }
- 
+
 // ─── Meal Card ────────────────────────────────────────────────────────────────
- 
+
 const MEAL_ICON_COLORS: Record<string, string> = {
   Breakfast: 'rgba(255,179,71,0.12)',
   Lunch: 'rgba(79,255,176,0.10)',
   Dinner: 'rgba(123,110,246,0.12)',
   Snack: 'rgba(0,212,255,0.10)',
 };
- 
+
 function MealCard({ meal }: { meal: any }) {
   const type = meal.meal_type?.toLowerCase() || "lunch";
 
@@ -671,38 +779,53 @@ function MealCard({ meal }: { meal: any }) {
     </View>
   );
 }
- 
+
 // ─── Main Home Screen ─────────────────────────────────────────────────────────
- 
+
 import { useLocalSearchParams } from "expo-router";
-const params = useLocalSearchParams();
 
 export default function HomeScreen({
-  userName = "Alex",
+
   onScanPress,
   onAddMealPress,
   onSeeAllMealsPress,
 }: HomeScreenProps) {
 
-const router = useRouter();
-  const params = useLocalSearchParams();
+  const router = useRouter();
+
+  const params =
+    useLocalSearchParams();
 
   // 🥇 STATE
-  const [summary, setSummary] = useState<NutritionSummary | null>(null);
-  const [meals, setMeals] = useState<Meal[]>([]);
-  const [insights, setInsights] = useState<AIInsight[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] =
+    useState<NutritionSummary | null>(
+      null
+    );
+  const [userName, setUserName] =
+    useState("User");
+  const [meals, setMeals] =
+    useState<Meal[]>([]);
+
+  const [insights, setInsights] =
+    useState<AIInsight[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
 
   // 🥈 SAFE SUMMARY
   const safeSummary = summary ?? {
     calories: 0,
     caloriesGoal: 1,
+
     protein: 0,
     proteinGoal: 1,
+
     carbs: 0,
     carbsGoal: 1,
+
     fat: 0,
     fatGoal: 1,
+
     water: 0,
     waterGoal: 3,
   };
@@ -712,7 +835,7 @@ const router = useRouter();
   const handleAddMeal = onAddMealPress ?? (() => router.push("/log"));
   const handleSeeAll = onSeeAllMealsPress ?? (() => router.push("/log"));
 
-   // 🟢 INITIAL LOAD (MOST IMPORTANT FIX)
+  // 🟢 INITIAL LOAD (MOST IMPORTANT FIX)
   useEffect(() => {
     loadData();
   }, []);
@@ -729,121 +852,226 @@ const router = useRouter();
     try {
       setLoading(true);
 
-      const [summaryData, mealsData, goalsData] = await Promise.all([
+      const [
+        summaryResponse,
+        mealsResponse,
+        goalsResponse,
+      ] = await Promise.all([
         getSummary(),
         getTodayMeals(),
         getGoals(),
       ]);
 
-      console.log("MEALS DATA RAW:", mealsData);
- 
+      console.log(
+        "SUMMARY RESPONSE:",
+        summaryResponse
+      );
+      setUserName(
+        summaryResponse?.user_name
+        || "User"
+      );
 
-    const formattedInsights = mapInsights(goalsData?.insights || []);
-    setInsights(formattedInsights);
+      console.log(
+        "MEALS RESPONSE:",
+        mealsResponse
+      );
 
-    const totals = summaryData?.totals || {};
+      console.log(
+        "GOALS RESPONSE:",
+        goalsResponse
+      );
 
-    const mergedSummary = {
-      calories: totals.calories || 0,
-      protein: totals.protein || 0,
-      carbs: totals.carbs || 0,
-      fat: totals.fat || 0,
+      /*
+      |--------------------------------------------------------------------------
+      | SAFE DATA EXTRACTION
+      |--------------------------------------------------------------------------
+      */
 
-      caloriesGoal: goalsData?.calories || 0,
-      proteinGoal: goalsData?.protein || 0,
-      carbsGoal: goalsData?.carbs || 0,
-      fatGoal: goalsData?.fats || 0,
 
-      water: 0,          
-      waterGoal: 3,  
-    };
 
-    setSummary(mergedSummary);
-    setMeals(mealsData?.meals || []);
-    console.log("MEALS STATE:", mealsData?.meals);
-  } catch (err) {
-    console.log("LOAD ERROR:", err);
-  } finally {
-    setLoading(false);
+
+
+      const goalsData =
+        goalsResponse?.success
+          ? goalsResponse.data
+          : null;
+
+      /*
+      |--------------------------------------------------------------------------
+      | INSIGHTS
+      |--------------------------------------------------------------------------
+      */
+
+      const formattedInsights =
+        mapInsights(
+          goalsData?.insights || []
+        );
+
+      setInsights(formattedInsights);
+
+
+
+      /*
+      |--------------------------------------------------------------------------
+      | TOTALS
+      |--------------------------------------------------------------------------
+      */
+
+
+      const totals =
+        summaryResponse?.totals || {};
+
+      const meals =
+        mealsResponse?.meals || [];
+
+      const goals =
+        goalsResponse?.data || {};
+      /*
+      |--------------------------------------------------------------------------
+      | MERGED SUMMARY
+      |--------------------------------------------------------------------------
+      */
+
+      const mergedSummary = {
+        calories:
+          totals.calories || 0,
+
+        protein:
+          totals.protein || 0,
+
+        carbs:
+          totals.carbs || 0,
+
+        fat:
+          totals.fat || 0,
+
+        caloriesGoal:
+          goalsResponse?.data?.calories || 0,
+
+        proteinGoal:
+          goalsResponse?.data?.protein || 0,
+
+        carbsGoal:
+          goalsResponse?.data?.carbs || 0,
+
+        fatGoal:
+          goalsResponse?.data?.fats || 0,
+
+        water:
+          totals.water || 0,
+
+        waterGoal:
+          goalsResponse?.data?.waterGoal || 3,
+      };
+
+      /*
+      |--------------------------------------------------------------------------
+      | UPDATE STATE
+      |--------------------------------------------------------------------------
+      */
+
+      setSummary(mergedSummary);
+
+      setMeals(
+        mealsResponse?.data?.meals || []
+      )
+
+      console.log(
+        "FINAL SUMMARY:",
+        mergedSummary
+      );
+
+      console.log(
+        "FINAL MEALS:",
+        mealsResponse?.data?.meals
+      );
+
+    } catch (err) {
+      console.log(
+        "LOAD ERROR:",
+        err
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  // 🥈 THEN CONDITIONAL UI
+  if (loading) {
+    return (
+      <Text style={{ color: "white", marginTop: 50 }}>
+        Loading...
+      </Text>
+    );
   }
-};
 
 
-// 🥈 THEN CONDITIONAL UI
-if (loading) {
+
   return (
-    <Text style={{ color: "white", marginTop: 50 }}>
-      Loading...
-    </Text>
+    <View style={s.root}>
+      <StatusBar barStyle="light-content" backgroundColor={C.bg0} />
+
+      <ScrollView
+        style={s.scroll}
+        contentContainerStyle={s.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <Header name={userName} />
+
+        {/* 🔥 CALORIES + MACROS */}
+        <CalorieCard summary={safeSummary} />
+
+        {/* ACTIONS */}
+        <QuickActions
+          onScanPress={handleScan}
+          onAddMealPress={handleAddMeal}
+        />
+
+        {/* 💧 WATER */}
+        <WaterTracker
+          consumed={safeSummary.water}
+          goal={safeSummary.waterGoal}
+        />
+
+        {/* 🤖 AI INSIGHTS */}
+        {insights.length > 0 && (
+          <View style={[s.sectionPad, { marginBottom: 14 }]}>
+            {insights.map((ins) => (
+              <AIInsightCard key={ins.id} insight={ins} />
+            ))}
+          </View>
+        )}
+
+        {/* 🍽️ MEALS */}
+        <View style={s.sectionPad}>
+          <View style={s.mealsHeader}>
+            <Text style={s.h3}>Recent Meals</Text>
+            <TouchableOpacity onPress={handleSeeAll}>
+              <Text style={s.seeAll}>See all</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={s.mealsList}>
+            {meals.length > 0 ? (
+              meals.map((meal) => (
+                <MealCard key={meal.id} meal={meal} />
+              ))
+            ) : (
+              <Text style={{ color: "#888", marginTop: 10 }}>
+                No meals added yet 🍽️
+              </Text>
+            )}
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
-
-
-  return (
-  <View style={s.root}>
-    <StatusBar barStyle="light-content" backgroundColor={C.bg0} />
-
-    <ScrollView
-      style={s.scroll}
-      contentContainerStyle={s.scrollContent}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Header */}
-      <Header name={userName} />
-
-      {/* 🔥 CALORIES + MACROS */}
-      <CalorieCard summary={safeSummary} />
-
-      {/* ACTIONS */}
-      <QuickActions
-        onScanPress={handleScan}
-        onAddMealPress={handleAddMeal}
-      />
-
-      {/* 💧 WATER */}
-      <WaterTracker
-        consumed={safeSummary.water}
-        goal={safeSummary.waterGoal}
-      />
-
-      {/* 🤖 AI INSIGHTS */}
-      {insights.length > 0 && (
-        <View style={[s.sectionPad, { marginBottom: 14 }]}>
-          {insights.map((ins) => (
-            <AIInsightCard key={ins.id} insight={ins} />
-          ))}
-        </View>
-      )}
-
-      {/* 🍽️ MEALS */}
-      <View style={s.sectionPad}>
-        <View style={s.mealsHeader}>
-          <Text style={s.h3}>Recent Meals</Text>
-          <TouchableOpacity onPress={handleSeeAll}>
-            <Text style={s.seeAll}>See all</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={s.mealsList}>
-          {meals.length > 0 ? (
-            meals.map((meal) => (
-              <MealCard key={meal.id} meal={meal} />
-            ))
-          ) : (
-            <Text style={{ color: "#888", marginTop: 10 }}>
-              No meals added yet 🍽️
-            </Text>
-          )}
-        </View>
-      </View>
-    </ScrollView>
-  </View>
-);
-}
- 
 // ─── Styles ───────────────────────────────────────────────────────────────────
- 
+
 const s = StyleSheet.create({
   // ── Root
   root: {
@@ -857,7 +1085,7 @@ const s = StyleSheet.create({
     paddingBottom: 100,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0,
   },
- 
+
   // ── Header
   headerRow: {
     flexDirection: 'row',
@@ -885,7 +1113,7 @@ const s = StyleSheet.create({
     fontWeight: '700',
     color: '#fff',
   },
- 
+
   // ── Shared
   sectionPad: {
     paddingHorizontal: 20,
@@ -907,7 +1135,7 @@ const s = StyleSheet.create({
     fontWeight: '600',
     color: C.text1,
   },
- 
+
   // ── Calorie Card
   calorieCard: {
     borderRadius: CARD_R,
@@ -937,7 +1165,7 @@ const s = StyleSheet.create({
     color: C.text2,
     marginLeft: 4,
   },
- 
+
   // ── Badge green
   badgeGreen: {
     alignSelf: 'flex-start',
@@ -952,7 +1180,7 @@ const s = StyleSheet.create({
     fontWeight: '600',
     color: C.accent,
   },
- 
+
   // ── Ring
   ringWrap: {
     width: RING_SIZE,
@@ -972,7 +1200,7 @@ const s = StyleSheet.create({
     fontWeight: '700',
     color: C.text1,
   },
- 
+
   // ── Macro bars
   macroRow: {
     flexDirection: 'row',
@@ -1010,7 +1238,7 @@ const s = StyleSheet.create({
     color: C.text2,
     marginLeft: 1,
   },
- 
+
   // ── Quick actions
   quickActionsContainer: {
     flexDirection: 'row',
@@ -1041,7 +1269,7 @@ const s = StyleSheet.create({
     color: C.text1,
     marginBottom: 3,
   },
- 
+
   // ── Water tracker
   waterCard: {
     backgroundColor: C.bg2,
@@ -1094,7 +1322,7 @@ const s = StyleSheet.create({
     fontWeight: '600',
     color: C.accent2,
   },
- 
+
   // ── AI Insight
   aiInsightCard: {
     borderRadius: CARD_R,
@@ -1145,10 +1373,10 @@ const s = StyleSheet.create({
     gap: 10,
   },
 });
- 
+
 // ── Meal Card (in Log Screen) ───────────────────────────────────────────────
- 
-  // ── Recent Meals
+
+// ── Recent Meals
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",

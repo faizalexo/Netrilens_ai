@@ -7,4 +7,5 @@ urlpatterns = [
     path('login/', login),
     path('create_profile/', create_profile),
     path('get_goals/', get_goals),
+    
 ]
