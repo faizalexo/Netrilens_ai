@@ -401,7 +401,7 @@ export default function LoginScreen() {
             // 🔥 small delay
             setTimeout(() => {
 
-                router.replace("/(tabs)");
+                router.replace("/");
 
             }, 300);
 

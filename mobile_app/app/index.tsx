@@ -1,76 +1,74 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
-import {
-  ActivityIndicator,
-  View,
-} from "react-native";
-
-import { router } from "expo-router";
+import { router } from 'expo-router';
 
 import AsyncStorage from
-"@react-native-async-storage/async-storage";
+'@react-native-async-storage/async-storage';
 
 export default function Index() {
 
-  console.log("INDEX SCREEN");
-
   useEffect(() => {
 
-    const checkAuth = async () => {
+    const bootstrap =
+      async () => {
 
-      try {
+        try {
 
-        const token =
-          await AsyncStorage.getItem(
-            "@auth_access_token"
+          // Auth token
+          const token =
+            await AsyncStorage.getItem(
+              '@auth_access_token'
+            );
+
+          // Onboarding state
+          const onboardingComplete =
+            await AsyncStorage.getItem(
+              '@onboarding_complete'
+            );
+
+          // NOT LOGGED IN
+          if (!token) {
+
+            router.replace(
+              '/(auth)/login'
+            );
+
+            return;
+          }
+
+          // LOGGED IN
+          // BUT onboarding incomplete
+          if (
+            onboardingComplete !==
+            'true'
+          ) {
+
+            router.replace(
+              '/onboarding/welcome'
+            );
+
+            return;
+          }
+
+          // FULLY READY
+          router.replace('/(tabs)');
+
+        } catch (error) {
+
+          console.log(
+            'BOOTSTRAP ERROR:',
+            error
           );
-
-        console.log(
-          "INDEX TOKEN:",
-          token
-        );
-
-        if (token) {
-
-          router.replace("/(tabs)");
-
-        } else {
 
           router.replace(
-            "/(auth)/login"
+            '/(auth)/login'
           );
         }
+      };
 
-      } catch (error) {
-
-        console.log(
-          "AUTH CHECK ERROR:",
-          error
-        );
-
-        router.replace(
-          "/(auth)/login"
-        );
-      }
-    };
-
-    checkAuth();
+    bootstrap();
 
   }, []);
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#000",
-      }}
-    >
-      <ActivityIndicator
-        size="large"
-        color="#f59e0b"
-      />
-    </View>
-  );
+  return null;
 }

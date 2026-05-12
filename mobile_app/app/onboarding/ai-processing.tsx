@@ -16,7 +16,7 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -38,46 +38,11 @@ import { TOKENS } from '@/components/ui/GlassCard';
 import { colors } from '@/src/theme/colors';
 import { radius as R, componentSpacing } from '@/src/theme/spacing';
 import { typography } from '@/src/theme/typography';
+import {
+  useOnboardingStore,
+} from '@/src/store/onboardingStore';
 
-// ─── Nutrition Calculator ─────────────────────────────────────────────────────
-interface NutritionInput {
-  weight: number;
-  height: number;
-  age: number;
-  gender: string;
-  goal: string;
-  activity: string;
-}
-
-interface NutritionResult {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  tdee: number;
-}
-
-const ACTIVITY_MULTS: Record<string, number> = {
-  sedentary: 1.2,
-  lightly: 1.375,
-  moderate: 1.55,
-  very: 1.725,
-  athlete: 1.9,
-};
-
-function calcNutrition(input: NutritionInput): NutritionResult {
-  const { weight, height, age, gender, goal, activity } = input;
-  const bmr = 10 * weight + 6.25 * height - 5 * age + (gender === 'Female' ? -161 : 5);
-  const mult = ACTIVITY_MULTS[activity] ?? 1.55;
-  const tdee = bmr * mult;
-  const adj = goal === 'lose' ? -500 : goal === 'muscle' ? 300 : 0;
-  const calories = Math.max(1200, Math.round(tdee + adj));
-  const protein = Math.round(weight * (goal === 'muscle' ? 2.2 : 1.8));
-  const fat = Math.round(calories * 0.25 / 9);
-  const carbs = Math.max(0, Math.round((calories - protein * 4 - fat * 9) / 4));
-  return { calories, protein, carbs, fat, tdee: Math.round(tdee) };
-}
-
+import api from '@/src/services/api';
 // ─── Processing step thresholds ───────────────────────────────────────────────
 const PROCESSING_STEPS = [
   { label: 'Basal Metabolic Rate', threshold: 20 },
@@ -401,7 +366,13 @@ function ProcessingView({ progress, phaseLabel }: ProcessingViewProps) {
 
 // ─── Results View ─────────────────────────────────────────────────────────────
 interface ResultsViewProps {
-  result: NutritionResult;
+  result: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+
   onNext: () => void;
 }
 
@@ -573,10 +544,13 @@ export default function AIProcessingScreen() {
     goal,
     activityLevel,
 
-    setCalories,
-    setProtein,
-    setCarbs,
-    setFats,
+    calories,
+    protein,
+    carbs,
+    fats,
+
+    setNutrition,
+    setInsights,
   } = useOnboardingStore();
   const activityMultipliers = {
     sedentary: 1.2,
@@ -587,62 +561,104 @@ export default function AIProcessingScreen() {
   };
 
   const router = useRouter();
-  const params = useLocalSearchParams<{
-    name: string; age: string; gender: string;
-    height: string; weight: string;
-    heightUnit: string; weightUnit: string;
-    goal: string; activity: string;
-  }>();
+
 
   const [progress, setProgress] = useState(0);
   const [phaseIdx, setPhaseIdx] = useState(0);
   const [showResults, setShowResults] = useState(false);
 
   // Derived nutrition data (memoised via ref to avoid re-calc on re-renders)
-  const nutrition = useRef<NutritionResult | null>(null);
-  if (!nutrition.current) {
-    nutrition.current = calcNutrition({
-      weight: parseFloat(params.weight ?? '70'),
-      height: parseFloat(params.height ?? '170'),
-      age: parseInt(params.age ?? '25', 10),
-      gender: params.gender ?? 'Male',
-      goal: params.goal ?? 'maintain',
-      activity: params.activity ?? 'moderate',
-    });
-  }
 
+  const processOnboarding =
+    async () => {
+
+      try {
+
+        // Create profile
+
+        await api.post(
+          '/users/create_profile/',
+          {
+            age,
+            gender,
+            height,
+            weight,
+
+            activity_level:
+              activityLevel,
+
+            goal,
+          }
+        );
+
+        // Fetch goals
+
+        const response =
+          await api.get(
+            '/users/get_goals/'
+          );
+
+        const data =
+          response.data;
+
+        // Save into Zustand
+
+        setNutrition(
+          data.calories,
+          data.protein,
+          data.carbs,
+          data.fats
+        );
+
+        setInsights(
+          data.insights || []
+        );
+
+      } catch (error) {
+
+        console.log(
+          'ONBOARDING ERROR:',
+          error
+        );
+      }
+    };
   // Drive the progress bar animation
   useEffect(() => {
     let p = 0;
-    const id = setInterval(() => {
+    const id = setInterval(async () => {
       p += 1.4;
       setProgress(p);
       if (p > 26 && p < 28) setPhaseIdx(1);
       if (p > 58 && p < 60) setPhaseIdx(2);
       if (p > 92) setPhaseIdx(3);
       if (p >= 100) {
+
         clearInterval(id);
+
         setProgress(100);
-        setTimeout(() => setShowResults(true), 600);
+
+        // REAL backend onboarding
+        await processOnboarding();
+
+        // Small cinematic delay
+        setTimeout(() => {
+
+          setShowResults(true);
+
+        }, 1200);
       }
     }, 38);
     return () => clearInterval(id);
   }, []);
 
-  const handleNext = useCallback(() => {
-    const n = nutrition.current!;
-    router.push({
-      pathname: '/onboarding/completion',
-      params: {
-        ...params,
-        calories: String(n.calories),
-        protein: String(n.protein),
-        carbs: String(n.carbs),
-        fat: String(n.fat),
-      },
-    });
-  }, [params, router]);
+  const handleNext =
+    useCallback(() => {
 
+      router.replace(
+        '/onboarding/completion'
+      );
+
+    }, [router]);
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
@@ -673,7 +689,12 @@ export default function AIProcessingScreen() {
           ]}
         >
           <ResultsView
-            result={nutrition.current!}
+            result={{
+              calories,
+              protein,
+              carbs,
+              fat: fats,
+            }}
             onNext={handleNext}
           />
         </Animated.View>

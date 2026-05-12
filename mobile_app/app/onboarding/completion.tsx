@@ -21,7 +21,7 @@ import {
   StatusBar,
   Dimensions,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -42,6 +42,14 @@ import { TOKENS } from '@/components/ui/GlassCard';
 import { colors } from '@/src/theme/colors';
 import { radius as R, componentSpacing, dimensions } from '@/src/theme/spacing';
 import { typography } from '@/src/theme/typography';
+import AsyncStorage from
+  '@react-native-async-storage/async-storage';
+
+import {
+  useOnboardingStore,
+} from '@/src/store/onboardingStore';
+
+import { router } from 'expo-router';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -273,6 +281,39 @@ function StatCard({ label, value, delay }: { label: string; value: string; delay
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 export default function CompletionScreen() {
+
+  const handleEnterDashboard =
+    async () => {
+
+      try {
+
+        // Save onboarding state
+        await AsyncStorage.setItem(
+          '@onboarding_complete',
+          'true'
+        );
+
+        // Update Zustand
+        setOnboardingCompleted(
+          true
+        );
+
+        // Open dashboard
+        router.replace('/(tabs)');
+
+      } catch (error) {
+
+        console.log(
+          'DASHBOARD ERROR:',
+          error
+        );
+      }
+    };
+
+
+
+
+
   const scaleAnim = useSharedValue(0.9);
 
   const opacityAnim = useSharedValue(0);
@@ -299,23 +340,23 @@ export default function CompletionScreen() {
       ],
     };
   });
-  const router = useRouter();
-  const params = useLocalSearchParams<{
-    name: string;
-    goal: string;
-    activity: string;
-    calories: string;
-    protein: string;
-    carbs: string;
-    fat: string;
-  }>();
 
-  const { name = '', goal = 'maintain', activity = 'moderate' } = params;
+  const {
+    name,
 
-  const handleDashboard = useCallback(() => {
-    // In a real app: router.replace('/(tabs)/dashboard')
-    router.replace('/');
-  }, [router]);
+    goal,
+    activityLevel,
+    calories,
+    protein,
+    carbs,
+    fats,
+
+    insights,
+
+    setOnboardingCompleted,
+  } = useOnboardingStore();
+
+
 
   return (
     <View style={styles.container}>
@@ -425,7 +466,7 @@ export default function CompletionScreen() {
         {/* Stats grid */}
         <View style={styles.statsGrid}>
           <StatCard label="Goal" value={goalLabel(goal)} delay={600} />
-          <StatCard label="Activity" value={activityLabel(activity)} delay={660} />
+          <StatCard label="Activity" value={activityLabel(activityLevel)} delay={660} />
           <StatCard label="Plan Type" value="AI Blueprint" delay={720} />
           <StatCard label="Updated" value="Just now" delay={780} />
         </View>
@@ -434,7 +475,7 @@ export default function CompletionScreen() {
         <Animated.View style={{ width: "100%" }}>
           <GradientButton
             label="Enter Dashboard →"
-            onPress={handleDashboard}
+            onPress={handleEnterDashboard}
             variant="primary"
           />
         </Animated.View>
