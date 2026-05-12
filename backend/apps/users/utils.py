@@ -16,18 +16,19 @@ def calculate_goals(profile):
 
     # 🔥 Activity multiplier
     activity_map = {
-        "sedentary": 1.2,
-        "light": 1.375,
-        "moderate": 1.55,
-        "active": 1.725
-    }
+    "sedentary": 1.2,
+    "light": 1.375,
+    "moderate": 1.55,
+    "active": 1.725,
+    "athlete": 1.9,
+}
 
     calories = bmr * activity_map.get(activity, 1.2)
 
     # 🎯 Goal adjustment
-    if goal == "fat_loss":
+    if goal == "lose_fat":
         calories -= 400
-    elif goal == "muscle_gain":
+    elif goal == "gain_muscle":
         calories += 300
 
     calories = max(calories, 1200)  # 🛡️ minimum safety
@@ -51,10 +52,10 @@ def calculate_goals(profile):
     if protein < weight * 1.5:
         insights.append("You need more protein for better recovery")
 
-    if goal == "fat_loss" and calories > bmr:
+    if goal == "lose_fat" and calories > bmr:
         insights.append("Calorie deficit is too small for fat loss")
 
-    if goal == "muscle_gain" and protein < weight * 1.8:
+    if goal == "gain_muscle" and protein < weight * 1.8:
         insights.append("Increase protein for muscle gain")
 
     # 🔥 FINAL OUTPUT
