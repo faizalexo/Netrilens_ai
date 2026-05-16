@@ -424,7 +424,7 @@ export default function WelcomeScreen() {
         <Animated.View style={styles.ctaGroup}>
           <GradientButton
             label="Get Started →"
-            onPress={() => router.push("/onboarding/basic-info")}
+            onPress={() => router.push("/(auth)/register")}
             variant="primary"
             radius={15}
           />

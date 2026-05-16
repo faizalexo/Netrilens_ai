@@ -1,866 +1,938 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Dimensions,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Pressable,
 } from "react-native";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { StatusBar } from "expo-status-bar";
-import { router } from "expo-router";
-import Animated, {
-    Easing,
-    FadeInDown,
-    FadeInUp,
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withSequence,
-    withSpring,
-    withTiming,
-    interpolate,
-} from "react-native-reanimated";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import api from "../../src/services/api";
+import { BlurView } from "expo-blur";
+import { MotiView, MotiText } from "moti";
+import { Easing } from "react-native-reanimated";
+import {
+  X,
+  AlignJustify,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+} from "lucide-react-native";
+import Svg, {
+  Circle,
+  Path,
+  Defs,
+  RadialGradient,
+  Stop,
+  Ellipse,
+  G
+} from "react-native-svg";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+import AsyncStorage from
+'@react-native-async-storage/async-storage';
 
-interface LoginResponse {
-    access: string;
-    refresh: string;
-    user: {
-        id: number;
-        name: string;
-        [key: string]: unknown;
-    };
-}
+import api from
+'@/src/services/api';
 
-interface ApiError {
-    response?: {
-        status: number;
-        data?: {
-            detail?: string;
-            non_field_errors?: string[];
-            [key: string]: unknown;
-        };
-    };
-    message?: string;
-}
+import { router } from
+'expo-router';
 
-// ─── Validation Schema ────────────────────────────────────────────────────────
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const loginSchema = z.object({
-    email: z
-        .string()
-        .min(1, "Email is required")
-        .email("Please enter a valid email"),
-    password: z
-        .string()
-        .min(6, "Password must be at least 6 characters"),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const { width, height } = Dimensions.get("window");
-
+// ─── Design Tokens ────────────────────────────────────────────────────────────
 const COLORS = {
-    background: "#0A0A0A",
-    surface: "#111111",
-    card: "#161616",
-    border: "rgba(255,255,255,0.07)",
-    inputBg: "rgba(255,255,255,0.05)",
-    orangeStart: "#FF6B00",
-    orangeMid: "#FF8C00",
-    yellowEnd: "#FFD000",
-    textPrimary: "#FFFFFF",
-    textSecondary: "rgba(255,255,255,0.5)",
-    textMuted: "rgba(255,255,255,0.3)",
-    error: "#FF4D4D",
-    glow: "rgba(255, 107, 0, 0.35)",
-    glowSoft: "rgba(255, 140, 0, 0.15)",
+  bg: "#080810",
+  bgGlass: "rgba(18, 18, 30, 0.72)",
+  cardBorder: "rgba(255, 255, 255, 0.08)",
+  inputBg: "rgba(255, 255, 255, 0.055)",
+  inputBorder: "rgba(255, 255, 255, 0.10)",
+  inputBorderFocused: "rgba(255, 255, 255, 0.28)",
+  white: "#FFFFFF",
+  textPrimary: "#F2F2F7",
+  textSecondary: "rgba(235, 235, 245, 0.45)",
+  textMuted: "rgba(235, 235, 245, 0.30)",
+  placeholder: "rgba(235, 235, 245, 0.32)",
+  accent: "#FFFFFF",
+  glow1: "rgba(99, 74, 255, 0.18)",
+  glow2: "rgba(28, 100, 242, 0.12)",
+  socialBg: "rgba(255, 255, 255, 0.06)",
+  socialBorder: "rgba(255, 255, 255, 0.09)",
+  divider: "rgba(255, 255, 255, 0.10)",
+  checkboxBorder: "rgba(255, 255, 255, 0.25)",
+  checkboxChecked: "rgba(255, 255, 255, 0.92)",
+  shadow: "rgba(0, 0, 0, 0.85)",
+  buttonShadow: "rgba(255, 255, 255, 0.15)",
 };
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-const AnimatedLogo: React.FC = () => {
-    const floatY = useSharedValue(0);
-    const glowOpacity = useSharedValue(0.6);
-    const scale = useSharedValue(1);
-
-    useEffect(() => {
-        floatY.value = withRepeat(
-            withSequence(
-                withTiming(-8, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
-                withTiming(8, { duration: 2000, easing: Easing.inOut(Easing.sin) })
-            ),
-            -1,
-            true
-        );
-        glowOpacity.value = withRepeat(
-            withSequence(
-                withTiming(1, { duration: 1800, easing: Easing.inOut(Easing.sin) }),
-                withTiming(0.5, { duration: 1800, easing: Easing.inOut(Easing.sin) })
-            ),
-            -1,
-            true
-        );
-        scale.value = withRepeat(
-            withSequence(
-                withTiming(1.04, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
-                withTiming(0.97, { duration: 2000, easing: Easing.inOut(Easing.sin) })
-            ),
-            -1,
-            true
-        );
-    }, []);
-
-    const containerStyle = useAnimatedStyle(() => ({
-        transform: [
-            { translateY: floatY.value },
-            { scale: scale.value },
-        ],
-    }));
-
-    const glowStyle = useAnimatedStyle(() => ({
-        opacity: glowOpacity.value,
-    }));
-
-    return (
-        <Animated.View style={[styles.logoWrapper, containerStyle]}>
-            <Animated.View style={[styles.logoGlow, glowStyle]} />
-            <View style={styles.logoCard}>
-                <LinearGradient
-                    colors={["rgba(255,107,0,0.18)", "rgba(255,200,0,0.08)"]}
-                    style={styles.logoCardGradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                />
-                <View style={styles.logoIconContainer}>
-                    <Text style={styles.logoSymbol}>⚡</Text>
-                </View>
-            </View>
-        </Animated.View>
-    );
+const RADIUS = {
+  card: 28,
+  input: 14,
+  button: 14,
+  icon: 10,
+  social: 14,
 };
 
-interface GradientButtonProps {
-    label: string;
-    onPress: () => void;
-    loading?: boolean;
-    disabled?: boolean;
-}
-
-const GradientButton: React.FC<GradientButtonProps> = ({
-    label,
-    onPress,
-    loading = false,
-    disabled = false,
-}) => {
-    const scale = useSharedValue(1);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-    }));
-
-    const handlePressIn = () => {
-        scale.value = withSpring(0.96, { damping: 15 });
-    };
-
-    const handlePressOut = () => {
-        scale.value = withSpring(1, { damping: 15 });
-    };
-
-    return (
-        <Animated.View style={[styles.gradientButtonWrapper, animatedStyle]}>
-            <Pressable
-                onPress={onPress}
-                onPressIn={handlePressIn}
-                onPressOut={handlePressOut}
-                disabled={disabled || loading}
-                style={({ pressed }) => [
-                    styles.gradientButtonPressable,
-                    (disabled || loading) && styles.buttonDisabled,
-                ]}
-                accessible
-                accessibilityRole="button"
-                accessibilityLabel={label}
-            >
-                <LinearGradient
-                    colors={
-                        disabled || loading
-                            ? ["rgba(255,107,0,0.4)", "rgba(255,208,0,0.4)"]
-                            : [COLORS.orangeStart, COLORS.orangeMid, COLORS.yellowEnd]
-                    }
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.gradientFill}
-                >
-                    {loading ? (
-                        <ActivityIndicator color="#000" size="small" />
-                    ) : (
-                        <Text style={styles.gradientButtonText}>{label}</Text>
-                    )}
-                </LinearGradient>
-            </Pressable>
-        </Animated.View>
-    );
+const SPACING = {
+  xs: 4,
+  sm: 8,
+  md: 14,
+  lg: 20,
+  xl: 28,
+  xxl: 36,
 };
 
-interface SocialButtonProps {
-    label: string;
-    icon: string;
-    onPress: () => void;
-}
+// ─── Ambient Glow Background ──────────────────────────────────────────────────
+const AmbientGlow: React.FC = () => (
+  <View
+    style={StyleSheet.absoluteFill}
+    pointerEvents="none"
+  >
+    <Svg
+      width={SCREEN_WIDTH}
+      height={SCREEN_HEIGHT}
+      style={StyleSheet.absoluteFill}
+    >
+      <Defs>
 
-const SocialButton: React.FC<SocialButtonProps> = ({ label, icon, onPress }) => {
-    const scale = useSharedValue(1);
+        {/* TOP PURPLE GLOW */}
+        <RadialGradient
+          id="glow1"
+          cx="50%"
+          cy="18%"
+          r="58%"
+        >
+          <Stop
+            offset="0%"
+            stopColor="#7C3AED"
+            stopOpacity="0.32"
+          />
 
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-    }));
+          <Stop
+            offset="100%"
+            stopColor="#7C3AED"
+            stopOpacity="0"
+          />
+        </RadialGradient>
 
-    return (
-        <Animated.View style={[{ flex: 1 }, animatedStyle]}>
-            <Pressable
-                onPress={onPress}
-                onPressIn={() => { scale.value = withSpring(0.95); }}
-                onPressOut={() => { scale.value = withSpring(1); }}
-                style={styles.socialButton}
-                accessible
-                accessibilityRole="button"
-                accessibilityLabel={`Sign in with ${label}`}
-            >
-                <Text style={styles.socialIcon}>{icon}</Text>
-                <Text style={styles.socialLabel}>{label}</Text>
-            </Pressable>
-        </Animated.View>
-    );
-};
+        {/* RIGHT PINK GLOW */}
+        <RadialGradient
+          id="glow2"
+          cx="82%"
+          cy="52%"
+          r="48%"
+        >
+          <Stop
+            offset="0%"
+            stopColor="#D946EF"
+            stopOpacity="0.18"
+          />
 
+          <Stop
+            offset="100%"
+            stopColor="#D946EF"
+            stopOpacity="0"
+          />
+        </RadialGradient>
+
+        {/* BOTTOM BLUE GLOW */}
+        <RadialGradient
+          id="glow3"
+          cx="18%"
+          cy="88%"
+          r="52%"
+        >
+          <Stop
+            offset="0%"
+            stopColor="#2563EB"
+            stopOpacity="0.14"
+          />
+
+          <Stop
+            offset="100%"
+            stopColor="#2563EB"
+            stopOpacity="0"
+          />
+        </RadialGradient>
+
+      </Defs>
+
+      {/* TOP MAIN GLOW */}
+      <Ellipse
+        cx={SCREEN_WIDTH * 0.5}
+        cy={SCREEN_HEIGHT * 0.18}
+        rx={SCREEN_WIDTH * 0.75}
+        ry={SCREEN_HEIGHT * 0.22}
+        fill="url(#glow1)"
+      />
+
+      {/* RIGHT SIDE GLOW */}
+      <Ellipse
+        cx={SCREEN_WIDTH * 0.9}
+        cy={SCREEN_HEIGHT * 0.52}
+        rx={SCREEN_WIDTH * 0.45}
+        ry={SCREEN_HEIGHT * 0.22}
+        fill="url(#glow2)"
+      />
+
+      {/* BOTTOM LEFT GLOW */}
+      <Ellipse
+        cx={SCREEN_WIDTH * 0.15}
+        cy={SCREEN_HEIGHT * 0.92}
+        rx={SCREEN_WIDTH * 0.5}
+        ry={SCREEN_HEIGHT * 0.18}
+        fill="url(#glow3)"
+      />
+    </Svg>
+  </View>
+);
+
+// ─── Icon Button ──────────────────────────────────────────────────────────────
+
+
+
+
+// ─── Input Field ──────────────────────────────────────────────────────────────
 interface InputFieldProps {
-    placeholder: string;
-    value: string;
-    onChangeText: (t: string) => void;
-    onBlur: () => void;
-    error?: string;
-    secureTextEntry?: boolean;
-    keyboardType?: "email-address" | "default";
-    autoCapitalize?: "none" | "sentences" | "words" | "characters";
-    rightElement?: React.ReactNode;
-    accessibilityLabel?: string;
+  label: string;
+  value: string;
+  onChangeText: (t: string) => void;
+  placeholder: string;
+  icon: React.ReactNode;
+  secureTextEntry?: boolean;
+  showToggle?: boolean;
+  onToggle?: () => void;
+  showPassword?: boolean;
+  keyboardType?: "default" | "email-address";
+  delay?: number;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
-    placeholder,
-    value,
-    onChangeText,
-    onBlur,
-    error,
-    secureTextEntry = false,
-    keyboardType = "default",
-    autoCapitalize = "none",
-    rightElement,
-    accessibilityLabel,
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  icon,
+  secureTextEntry,
+  showToggle,
+  onToggle,
+  showPassword,
+  keyboardType = "default",
+  delay = 0,
 }) => {
-    const borderAnim = useSharedValue(0);
+  const [focused, setFocused] = useState(false);
 
-    const borderStyle = useAnimatedStyle(() => ({
-        borderColor: interpolate(
-            borderAnim.value,
-            [0, 1],
-            [0, 1]
-        ) === 0
-            ? "rgba(255,255,255,0.07)"
-            : "rgba(255,107,0,0.5)",
-        borderWidth: 1,
-    }));
-
-    return (
-        <View style={styles.inputWrapper}>
-            <Animated.View
-                style={[
-                    styles.inputContainer,
-                    borderStyle,
-                    error ? styles.inputError : null,
-                ]}
-            >
-                <TextInput
-                    placeholder={placeholder}
-                    placeholderTextColor={COLORS.textMuted}
-                    value={value}
-                    onChangeText={onChangeText}
-                    onBlur={() => {
-                        onBlur();
-                        borderAnim.value = withTiming(0, { duration: 200 });
-                    }}
-                    onFocus={() => {
-                        borderAnim.value = withTiming(1, { duration: 200 });
-                    }}
-                    secureTextEntry={secureTextEntry}
-                    keyboardType={keyboardType}
-                    autoCapitalize={autoCapitalize}
-                    style={styles.textInput}
-                    selectionColor={COLORS.orangeMid}
-                    accessible
-                    accessibilityLabel={accessibilityLabel ?? placeholder}
-                />
-                {rightElement && (
-                    <View style={styles.inputRight}>{rightElement}</View>
-                )}
-            </Animated.View>
-            {error && (
-                <Animated.Text
-                    entering={FadeInDown.duration(200)}
-                    style={styles.errorText}
-                >
-                    {error}
-                </Animated.Text>
+  return (
+    <MotiView
+      from={{ opacity: 0, translateY: 16 }}
+      animate={{ opacity: 1, translateY: 0 }}
+      transition={{ type: "timing", duration: 520, delay, easing: Easing.out(Easing.cubic) }}
+      style={styles.inputWrapper}
+    >
+      <Text style={styles.inputLabel}>{label}</Text>
+      <View
+        style={[
+          styles.inputContainer,
+          focused && styles.inputContainerFocused,
+        ]}
+      >
+        <View style={styles.inputIcon}>{icon}</View>
+        <TextInput
+          style={styles.textInput}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={COLORS.placeholder}
+          secureTextEntry={secureTextEntry && !showPassword}
+          keyboardType={keyboardType}
+          autoCapitalize="none"
+          autoCorrect={false}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          selectionColor={COLORS.white}
+        />
+        {showToggle && (
+          <TouchableOpacity
+            onPress={onToggle}
+            style={styles.eyeButton}
+            activeOpacity={0.7}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            {showPassword ? (
+              <EyeOff size={18} color={COLORS.textSecondary} />
+            ) : (
+              <Eye size={18} color={COLORS.textSecondary} />
             )}
-        </View>
-    );
+          </TouchableOpacity>
+        )}
+      </View>
+    </MotiView>
+  );
 };
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
+export default function AuthScreen() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [buttonPressed, setButtonPressed] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-export default function LoginScreen() {
-    const [showPassword, setShowPassword] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+  const handleLogin =
+    useCallback(async () => {
 
-    const {
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<LoginFormData>({
-        resolver: zodResolver(loginSchema),
-        defaultValues: { email: "", password: "" },
-    });
+      try {
 
-    const onSubmit = useCallback(async (data: LoginFormData) => {
-        setIsLoading(true);
-
-        try {
-
-            // 🔥 Clear previous session
-            await AsyncStorage.multiRemove([
-                "@auth_access_token",
-                "@auth_refresh_token",
-                "@auth_user",
-            ]);
-
-            // 🔥 Login request
-            const response = await api.post<LoginResponse>(
-                "/auth/login/",
-                {
-                    email: data.email,
-                    password: data.password,
-                }
-            );
-
-            const { access, refresh, user } = response.data;
-
-            api.defaults.headers.common[
-                "Authorization"
-            ] = `Bearer ${access}`;
-
-            await AsyncStorage.multiSet([
-                ["@auth_access_token", access],
-                ["@auth_refresh_token", refresh],
-                ["@auth_user", JSON.stringify(user)],
-            ]);
-
-            // 🔥 VERIFY TOKEN SAVED
-            const savedToken =
-                await AsyncStorage.getItem(
-                    "@auth_access_token"
-                );
-
-            console.log(
-                "SAVED TOKEN:",
-                savedToken
-            );
-
-            console.log(
-                "LOGGED IN USER:",
-                user
-            );
-
-            // 🔥 small delay
-            setTimeout(() => {
-
-                router.replace("/");
-
-            }, 300);
-
-        } catch (err: unknown) {
-
-            const error = err as ApiError;
-
-            let message = "Something went wrong. Please try again.";
-
-            if (error?.response) {
-
-                const { status, data: errData } = error.response;
-
-                if (status === 401 || status === 400) {
-
-                    message =
-                        (errData?.detail as string) ??
-                        (errData?.non_field_errors?.[0] as string) ??
-                        "Invalid email or password.";
-
-                } else if (status === 404) {
-
-                    message = "User not found.";
-
-                } else if (status >= 500) {
-
-                    message = "Server error. Please try again later.";
-                }
-
-            } else if (error?.message === "Network Error") {
-
-                message = "No internet connection. Check your network and retry.";
-            }
-
-            Alert.alert("Login Failed", message);
-
-        } finally {
-
-            setIsLoading(false);
+        if (!email || !password) {
+          return;
         }
 
-    }, []);
+        setLoading(true);
 
-    return (
-        <View style={styles.root}>
-            <StatusBar style="light" />
+        const response =
+          await api.post(
+            '/auth/login/',
+            {
+              email,
+              password,
+            }
+          );
 
-            {/* Ambient background glows */}
-            <View style={styles.ambientTopLeft} />
-            <View style={styles.ambientCenter} />
+        const data =
+          response.data;
 
-            <SafeAreaView style={styles.safeArea}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
-                    style={styles.kav}
-                    keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-                >
-                    <ScrollView
-                        contentContainerStyle={styles.scroll}
-                        keyboardShouldPersistTaps="handled"
-                        showsVerticalScrollIndicator={false}
+        // Save tokens
+        await AsyncStorage.setItem(
+          '@auth_access_token',
+          data.access
+        );
+
+        await AsyncStorage.setItem(
+          '@auth_refresh_token',
+          data.refresh
+        );
+
+        // Save user
+        await AsyncStorage.setItem(
+          '@auth_user',
+          JSON.stringify(
+            data.user
+          )
+        );
+
+        // Go to app gatekeeper
+        router.replace('/');
+
+      } catch (error) {
+
+        console.log(
+          'LOGIN ERROR:',
+          error
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+
+    }, [email, password]);
+
+  return (
+    <View style={styles.root}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <LinearGradient
+        colors={["#0A0A14", "#080810", "#06060F"]}
+        style={StyleSheet.absoluteFill}
+      />
+      <AmbientGlow />
+
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scroll}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* ── Top Bar ── */}
+            <View style={styles.topBar}>
+
+  <MotiView
+    from={{
+      opacity: 0,
+      translateY: -6
+    }}
+    animate={{
+      opacity: 1,
+      translateY: 0
+    }}
+    transition={{
+      type: "timing",
+      duration: 480,
+      delay: 80
+    }}
+    style={styles.topBarCenter}
+  >
+    <Text style={styles.urlText}>
+      Netrilens AI
+    </Text>
+  </MotiView>
+
+</View>
+
+            {/* ── Auth Card ── */}
+            <MotiView
+              from={{ opacity: 0, translateY: 40, scale: 0.96 }}
+              animate={{ opacity: 1, translateY: 0, scale: 1 }}
+              transition={{
+                type: "spring",
+                damping: 22,
+                stiffness: 140,
+                delay: 120,
+              }}
+              style={styles.cardWrapper}
+            >
+              <BlurView intensity={32} tint="dark" style={styles.cardBlur}>
+                <View style={styles.card}>
+                  {/* Card inner glow */}
+                  <View style={styles.cardGlowTop} pointerEvents="none" />
+
+                  {/* Heading */}
+                  <MotiView
+                    from={{ opacity: 0, translateY: 12 }}
+                    animate={{ opacity: 1, translateY: 0 }}
+                    transition={{ type: "timing", duration: 500, delay: 280 }}
+                  >
+                    <Text style={styles.title}>Welcome Back</Text>
+                    <Text style={styles.subtitle}>
+                      Fuel Your Body with AI Precision
+                    </Text>
+                  </MotiView>
+
+                  {/* Inputs */}
+                  <View style={styles.inputsGroup}>
+                    <InputField
+                      label="Email address"
+                      value={email}
+                      onChangeText={setEmail}
+                      placeholder="you@example.com"
+                      keyboardType="email-address"
+                      icon={<Mail size={16} color={COLORS.textSecondary} strokeWidth={1.8} />}
+                      delay={340}
+                    />
+                    <InputField
+                      label="Password"
+                      value={password}
+                      onChangeText={setPassword}
+                      placeholder="••••••••••••"
+                      secureTextEntry
+                      showToggle
+                      showPassword={showPassword}
+                      onToggle={() => setShowPassword((p) => !p)}
+                      icon={<Lock size={16} color={COLORS.textSecondary} strokeWidth={1.8} />}
+                      delay={420}
+                    />
+                  </View>
+
+                  {/* Remember / Forgot */}
+                  <MotiView
+                    from={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ type: "timing", duration: 420, delay: 500 }}
+                    style={styles.rememberRow}
+                  >
+                    <TouchableOpacity
+                      style={styles.checkboxRow}
+                      onPress={() => setRememberMe((v) => !v)}
+                      activeOpacity={0.8}
                     >
-                        {/* Top nav */}
-                        <Animated.View
-                            entering={FadeInDown.delay(100).duration(500)}
-                            style={styles.topNav}
-                        >
-                            <TouchableOpacity
-                                onPress={() => router.push("/register")}
-                                accessible
-                                accessibilityRole="button"
-                                accessibilityLabel="Sign up"
-                            >
-                                <Text style={styles.navLink}>Sign up</Text>
-                            </TouchableOpacity>
-                        </Animated.View>
+                      <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+                        {rememberMe && (
+                          <View style={styles.checkmark} />
+                        )}
+                      </View>
+                      <Text style={styles.rememberText}>Remember me</Text>
+                    </TouchableOpacity>
 
-                        {/* Logo */}
-                        <Animated.View
-                            entering={FadeInDown.delay(200).duration(600)}
-                            style={styles.logoSection}
-                        >
-                            <AnimatedLogo />
-                        </Animated.View>
+                    <TouchableOpacity activeOpacity={0.7}>
+                      <Text style={styles.forgotText}>Forget Password?</Text>
+                    </TouchableOpacity>
+                  </MotiView>
 
-                        {/* Form card */}
-                        <Animated.View
-                            entering={FadeInUp.delay(350).duration(600).springify()}
-                            style={styles.formCard}
-                        >
-                            <LinearGradient
-                                colors={["rgba(255,107,0,0.06)", "transparent"]}
-                                style={StyleSheet.absoluteFill}
-                                start={{ x: 0.5, y: 0 }}
-                                end={{ x: 0.5, y: 1 }}
-                                pointerEvents="none"
-                            />
+                  {/* Continue Button */}
+                  <MotiView
+                    from={{ opacity: 0, translateY: 10 }}
+                    animate={{ opacity: 1, translateY: 0 }}
+                    transition={{ type: "timing", duration: 440, delay: 560 }}
+                  >
+                    <MotiView
+                      animate={{ scale: buttonPressed ? 0.975 : 1 }}
+                      transition={{ type: "spring", damping: 20, stiffness: 260 }}
+                    >
+                      <Pressable
+                        style={styles.continueButton}
+                        onPressIn={() => setButtonPressed(true)}
+                        onPressOut={() => setButtonPressed(false)}
+                        onPress={handleLogin}
+                      >
+                        <LinearGradient
+                          colors={["#FFFFFF", "#E8E8EC"]}
+                          style={StyleSheet.absoluteFill}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 0, y: 1 }}
+                        />
+                        <Text style={styles.continueText}>Login</Text>
+                      </Pressable>
+                    </MotiView>
+                  </MotiView>
 
-                            <Text style={styles.title}>Sign In SpeechLab</Text>
+                  {/* Divider */}
+                  <MotiView
+                    from={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ type: "timing", duration: 400, delay: 620 }}
+                    style={styles.dividerRow}
+                  >
+                    <View style={styles.dividerLine} />
+                    <Text style={styles.dividerText}>Or Login with</Text>
+                    <View style={styles.dividerLine} />
+                  </MotiView>
 
-                            {/* Email */}
-                            <View style={styles.fieldGroup}>
-                                <Text style={styles.label}>Email address</Text>
-                                <Controller
-                                    control={control}
-                                    name="email"
-                                    render={({ field: { onChange, onBlur, value } }) => (
-                                        <InputField
-                                            placeholder="Enter your email"
-                                            value={value}
-                                            onChangeText={onChange}
-                                            onBlur={onBlur}
-                                            error={errors.email?.message}
-                                            keyboardType="email-address"
-                                            autoCapitalize="none"
-                                            accessibilityLabel="Email address"
-                                        />
-                                    )}
-                                />
-                            </View>
+                  {/* Social Buttons */}
+                  <MotiView
+                    from={{ opacity: 0, translateY: 10 }}
+                    animate={{ opacity: 1, translateY: 0 }}
+                    transition={{ type: "timing", duration: 440, delay: 680 }}
+                    style={styles.socialRow}
+                  >
+                    {/* Google */}
+                    <TouchableOpacity style={styles.socialButton} activeOpacity={0.75}>
+                      <View style={styles.socialInner}>
+                        {/* Google G SVG */}
+                        <Svg width={20} height={20} viewBox="0 0 48 48">
+                          <Circle cx="24" cy="24" r="24" fill="transparent" />
+                          <Svg viewBox="0 0 48 48" width={20} height={20}>
+                            {/* Simplified Google logo paths via nested SVG */}
+                          </Svg>
+                        </Svg>
+                        <GoogleIcon />
+                        <Text style={styles.socialText}>Google</Text>
+                      </View>
+                    </TouchableOpacity>
 
-                            {/* Password */}
-                            <View style={styles.fieldGroup}>
-                                <Text style={styles.label}>Password</Text>
-                                <Controller
-                                    control={control}
-                                    name="password"
-                                    render={({ field: { onChange, onBlur, value } }) => (
-                                        <InputField
-                                            placeholder="Enter your password"
-                                            value={value}
-                                            onChangeText={onChange}
-                                            onBlur={onBlur}
-                                            error={errors.password?.message}
-                                            secureTextEntry={!showPassword}
-                                            accessibilityLabel="Password"
-                                            rightElement={
-                                                <TouchableOpacity
-                                                    onPress={() => setShowPassword((p) => !p)}
-                                                    accessible
-                                                    accessibilityRole="button"
-                                                    accessibilityLabel={
-                                                        showPassword ? "Hide password" : "Show password"
-                                                    }
-                                                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                                >
-                                                    <Text style={styles.eyeIcon}>
-                                                        {showPassword ? "🙈" : "👁"}
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            }
-                                        />
-                                    )}
-                                />
-                            </View>
+                    {/* Apple */}
+                    <TouchableOpacity style={styles.socialButton} activeOpacity={0.75}>
+                      <View style={styles.socialInner}>
+                        <AppleIcon />
+                        <Text style={styles.socialText}>Apple</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </MotiView>
 
-                            {/* Forgot password */}
-                            <TouchableOpacity
-                                style={styles.forgotRow}
-                                accessible
-                                accessibilityRole="button"
-                                accessibilityLabel="Forgot password"
-                            >
-                                <Text style={styles.forgotText}>Forgot Password?</Text>
-                            </TouchableOpacity>
-
-                            {/* Login CTA */}
-                            <View style={styles.ctaRow}>
-                                <GradientButton
-                                    label="Login"
-                                    onPress={handleSubmit(onSubmit)}
-                                    loading={isLoading}
-                                    disabled={isLoading}
-                                />
-                            </View>
-
-                            {/* Divider */}
-                            <View style={styles.dividerRow}>
-                                <View style={styles.dividerLine} />
-                                <Text style={styles.dividerText}>or continue with</Text>
-                                <View style={styles.dividerLine} />
-                            </View>
-
-                            {/* Social */}
-                            <View style={styles.socialRow}>
-                                <SocialButton
-                                    label="Apple"
-                                    icon="🍎"
-                                    onPress={() => { }}
-                                />
-                                <View style={{ width: 12 }} />
-                                <SocialButton
-                                    label="Google"
-                                    icon="G"
-                                    onPress={() => { }}
-                                />
-                            </View>
-                        </Animated.View>
-                    </ScrollView>
-                </KeyboardAvoidingView>
-            </SafeAreaView>
-        </View>
-    );
+                  {/* Footer */}
+                  
+                  <MotiView
+                    from={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ type: "timing", duration: 400, delay: 740 }}
+                    style={styles.footer}
+                  >
+                    <TouchableOpacity activeOpacity={0.7}>
+                      <Text style={styles.footerLink}>Terms of Use</Text>
+                    </TouchableOpacity>
+                    <View style={styles.footerDot} />
+                    <TouchableOpacity activeOpacity={0.7}>
+                      <Text style={styles.footerLink}>Privacy Policy</Text>
+                    </TouchableOpacity>
+                  </MotiView>
+                </View>
+              </BlurView>
+            </MotiView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
+  );
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
+// ─── Google Icon (inline SVG) ─────────────────────────────────────────────────
+const GoogleIcon: React.FC = () => (
+  <Svg width={17} height={17} viewBox="0 0 18 18">
+    <Path
+      fill="#4285F4"
+      d="M17.64 9.2c0-.638-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+    />
+    <Path
+      fill="#34A853"
+      d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+    />
+    <Path
+      fill="#FBBC05"
+      d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+    />
+    <Path
+      fill="#EA4335"
+      d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
+    />
+  </Svg>
+);
 
+// ─── Proper Google Logo (React Native SVG paths) ──────────────────────────────
+// Using a simplified text-based render
+const GoogleIconClean: React.FC = () => (
+  <View style={styles.socialIconWrap}>
+    <Svg width={18} height={18} viewBox="0 0 24 24">
+      {/* Google 'G' simplified with multicolor blocks */}
+      <Defs>
+        <RadialGradient id="g1" cx="50%" cy="50%" r="70%">
+          <Stop offset="0%" stopColor="#4285F4" stopOpacity="1" />
+          <Stop offset="100%" stopColor="#4285F4" stopOpacity="0.85" />
+        </RadialGradient>
+      </Defs>
+      {/* Blue (right portion) */}
+      <Circle cx="12" cy="12" r="12" fill="none" />
+      {/* This renders a simplified "G" shape using rects */}
+    </Svg>
+    <Text style={styles.googleG}>G</Text>
+  </View>
+);
+
+// ─── Apple Icon ───────────────────────────────────────────────────────────────
+const AppleIcon: React.FC = () => (
+  <Svg width={17} height={17} viewBox="0 0 1024 1024">
+    <Path
+      fill="white"
+      fillOpacity={0.9}
+      d="M747.4 535.7c-.4-68.2 30.5-119.6 92.9-157.5-34.9-50-87.7-77.5-157.3-82.8-65.9-5.2-138 38.4-164.4 38.4-27.9 0-91.7-36.6-141.9-36.6C273.1 298.8 163 379.8 163 544.6c0 48.7 8.9 99 26.7 150.8 23.8 68.2 109.6 235.3 199.1 232.6 46.8-1.1 79.9-33.2 140.8-33.2 59.1 0 89.7 33.2 141.9 33.2 90.3-1.3 167.9-153.2 190.5-221.6-121.1-57.1-114.6-167.2-114.6-170.7zm-105.1-305c50.7-60.2 46.1-115 44.6-134.7-44.8 2.6-96.6 30.5-126.1 64.8-32.5 36.8-51.6 82.3-47.5 133.6 48.4 3.7 92.6-21.2 129-63.7z"
+    />
+  </Svg>
+);
+
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-    root: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-    },
-    ambientTopLeft: {
-        position: "absolute",
-        top: -80,
-        left: -80,
-        width: 320,
-        height: 320,
-        borderRadius: 160,
-        backgroundColor: "rgba(255,107,0,0.12)",
-        // blur simulated via large spread shadow on Android / actual blur would need @react-native-community/blur
-    },
-    ambientCenter: {
-        position: "absolute",
-        top: height * 0.25,
-        left: width * 0.5 - 120,
-        width: 240,
-        height: 240,
-        borderRadius: 120,
-        backgroundColor: "rgba(255,140,0,0.07)",
-    },
-    safeArea: {
-        flex: 1,
-    },
-    kav: {
-        flex: 1,
-    },
-    scroll: {
-        flexGrow: 1,
-        paddingHorizontal: 24,
-        paddingBottom: 40,
-    },
-    topNav: {
-        flexDirection: "row",
-        justifyContent: "flex-end",
-        paddingTop: 12,
-        paddingBottom: 4,
-    },
-    navLink: {
-        color: COLORS.textPrimary,
-        fontSize: 15,
-        fontWeight: "500",
-        textDecorationLine: "underline",
-        textDecorationColor: "rgba(255,255,255,0.4)",
-    },
-    logoSection: {
-        alignItems: "center",
-        marginTop: 16,
-        marginBottom: 28,
-    },
-    logoWrapper: {
-        alignItems: "center",
-        justifyContent: "center",
-        width: 120,
-        height: 120,
-    },
-    logoGlow: {
-        position: "absolute",
-        width: 130,
-        height: 130,
-        borderRadius: 40,
-        backgroundColor: COLORS.glow,
-        // shadow glow
-        shadowColor: COLORS.orangeStart,
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 1,
-        shadowRadius: 40,
-        elevation: 20,
-    },
-    logoCard: {
-        width: 104,
-        height: 104,
-        borderRadius: 28,
-        backgroundColor: "rgba(30,20,10,0.85)",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-        borderWidth: 1,
-        borderColor: "rgba(255,107,0,0.25)",
-        shadowColor: COLORS.orangeStart,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.5,
-        shadowRadius: 20,
-        elevation: 12,
-    },
-    logoCardGradient: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    logoIconContainer: {
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    logoSymbol: {
-        fontSize: 44,
-    },
-    formCard: {
-        backgroundColor: "rgba(18,16,14,0.92)",
-        borderRadius: 28,
-        padding: 28,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        overflow: "hidden",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.5,
-        shadowRadius: 30,
-        elevation: 20,
-    },
-    title: {
-        color: COLORS.textPrimary,
-        fontSize: 24,
-        fontWeight: "700",
-        marginBottom: 24,
-        letterSpacing: 0.3,
-    },
-    fieldGroup: {
-        marginBottom: 16,
-    },
-    label: {
-        color: COLORS.textSecondary,
-        fontSize: 13,
-        fontWeight: "500",
-        marginBottom: 8,
-        letterSpacing: 0.2,
-    },
-    inputWrapper: {
-        width: "100%",
-    },
-    inputContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: COLORS.inputBg,
-        borderRadius: 14,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        paddingHorizontal: 16,
-        height: 52,
-        overflow: "hidden",
-    },
-    inputError: {
-        borderColor: "rgba(255,77,77,0.5)",
-    },
-    textInput: {
-        flex: 1,
-        color: COLORS.textPrimary,
-        fontSize: 15,
-        fontWeight: "400",
-        letterSpacing: 0.1,
-        padding: 0,
-    },
-    inputRight: {
-        marginLeft: 10,
-        padding: 4,
-    },
-    eyeIcon: {
-        fontSize: 17,
-    },
-    errorText: {
-        color: COLORS.error,
-        fontSize: 12,
-        marginTop: 5,
-        marginLeft: 4,
-        fontWeight: "400",
-    },
-    forgotRow: {
-        alignItems: "flex-end",
-        marginBottom: 24,
-        marginTop: 4,
-    },
-    forgotText: {
-        color: COLORS.textSecondary,
-        fontSize: 13,
-        fontWeight: "500",
-    },
-    ctaRow: {
-        marginBottom: 20,
-    },
-    gradientButtonWrapper: {
-        borderRadius: 14,
-        overflow: "hidden",
-        shadowColor: COLORS.orangeStart,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.45,
-        shadowRadius: 16,
-        elevation: 10,
-    },
-    gradientButtonPressable: {
-        borderRadius: 14,
-        overflow: "hidden",
-    },
-    buttonDisabled: {
-        opacity: 0.7,
-    },
-    gradientFill: {
-        height: 54,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    gradientButtonText: {
-        color: "#000",
-        fontSize: 16,
-        fontWeight: "700",
-        letterSpacing: 0.4,
-    },
-    dividerRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 20,
-    },
-    dividerLine: {
-        flex: 1,
-        height: 1,
-        backgroundColor: COLORS.border,
-    },
-    dividerText: {
-        color: COLORS.textMuted,
-        fontSize: 12,
-        marginHorizontal: 12,
-        fontWeight: "500",
-    },
-    socialRow: {
-        flexDirection: "row",
-    },
-    socialButton: {
-        flex: 1,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "rgba(255,255,255,0.05)",
-        borderRadius: 14,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        height: 50,
-        gap: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 6,
-        elevation: 4,
-    },
-    socialIcon: {
-        fontSize: 17,
-        fontWeight: "700",
-        color: COLORS.textPrimary,
-    },
-    socialLabel: {
-        color: COLORS.textPrimary,
-        fontSize: 14,
-        fontWeight: "600",
-        letterSpacing: 0.2,
-    },
+  root: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+  },
+  flex: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  scroll: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 24,
+  },
+
+  // ── Top Bar ──
+  topBar: {
+  width: "100%",
+  alignItems: "center",
+  justifyContent: "center",
+
+  paddingTop: 12,
+  paddingBottom: 8,
+},
+
+topBarCenter: {
+  alignItems: "center",
+  justifyContent: "center",
+},
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.icon,
+    overflow: "hidden",
+    borderWidth: 0.8,
+    borderColor: "rgba(255,255,255,0.10)",
+  },
+  iconButtonInner: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  urlText: {
+    fontSize: 13.5,
+    fontWeight: "500",
+    color: COLORS.textSecondary,
+    letterSpacing: 0.1,
+  },
+
+  // ── Card ──
+ cardWrapper: {
+  borderRadius: RADIUS.card,
+
+  overflow: "hidden",
+
+  borderWidth: 0.8,
+  borderColor: COLORS.cardBorder,
+
+  marginTop: "auto",
+
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 24
+  },
+
+  shadowOpacity: 0.55,
+  shadowRadius: 48,
+
+  elevation: 24,
+},
+  cardBlur: {
+    borderRadius: RADIUS.card,
+  },
+  card: {
+    borderRadius: RADIUS.card,
+    backgroundColor: COLORS.bgGlass,
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingBottom: 28,
+    overflow: "hidden",
+  },
+  cardGlowTop: {
+  position: "absolute",
+
+  top: -53,
+  left: -30,
+  right: -30,
+
+  height: 140,
+
+  backgroundColor:
+    "rgba(124, 58, 237, 0.10)",
+
+  borderRadius: 180,
+
+  opacity: 0.9,
+},
+
+  // ── Heading ──
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    textAlign: "center",
+    letterSpacing: -0.4,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 13.5,
+    fontWeight: "400",
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    lineHeight: 20,
+    letterSpacing: 0.05,
+    marginBottom: 28,
+  },
+
+  // ── Inputs ──
+  inputsGroup: {
+    gap: 12,
+    marginBottom: 18,
+  },
+  inputWrapper: {
+    gap: 6,
+  },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: COLORS.textSecondary,
+    letterSpacing: 0.1,
+    marginLeft: 2,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.inputBg,
+    borderRadius: RADIUS.input,
+    borderWidth: 0.8,
+    borderColor: COLORS.inputBorder,
+    paddingHorizontal: 14,
+    height: 50,
+  },
+  inputContainerFocused: {
+    borderColor: COLORS.inputBorderFocused,
+    backgroundColor: "rgba(255,255,255,0.075)",
+  },
+  inputIcon: {
+    marginRight: 10,
+    opacity: 0.85,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 14.5,
+    fontWeight: "400",
+    color: COLORS.textPrimary,
+    letterSpacing: 0.05,
+    paddingVertical: 0,
+  },
+  eyeButton: {
+    padding: 4,
+    marginLeft: 6,
+  },
+
+  // ── Remember / Forgot ──
+  rememberRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 22,
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+  },
+  checkbox: {
+    width: 16,
+    height: 16,
+    borderRadius: 4,
+    borderWidth: 1.2,
+    borderColor: COLORS.checkboxBorder,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkboxChecked: {
+    backgroundColor: "rgba(255,255,255,0.88)",
+    borderColor: "rgba(255,255,255,0.88)",
+  },
+  checkmark: {
+    width: 8,
+    height: 8,
+    borderRadius: 2,
+    backgroundColor: "#0A0A14",
+  },
+  rememberText: {
+    fontSize: 12.5,
+    color: COLORS.textSecondary,
+    fontWeight: "400",
+    letterSpacing: 0.05,
+  },
+  forgotText: {
+    fontSize: 12.5,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
+    letterSpacing: 0.05,
+  },
+
+  // ── Continue Button ──
+  continueButton: {
+    height: 54,
+    borderRadius: RADIUS.button,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 22,
+    shadowColor: "rgba(255,255,255,0.2)",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  continueText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#0A0A14",
+    letterSpacing: 0.1,
+  },
+
+  // ── Divider ──
+  dividerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 18,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 0.8,
+    backgroundColor: COLORS.divider,
+  },
+  dividerText: {
+    fontSize: 11.5,
+    color: COLORS.textMuted,
+    fontWeight: "400",
+    letterSpacing: 0.1,
+  },
+
+  // ── Social ──
+  socialRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 24,
+  },
+  socialButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: RADIUS.social,
+    backgroundColor: COLORS.socialBg,
+    borderWidth: 0.8,
+    borderColor: COLORS.socialBorder,
+    overflow: "hidden",
+  },
+  socialInner: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  socialText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: COLORS.textPrimary,
+    letterSpacing: 0.05,
+  },
+  socialIconWrap: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  googleG: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#4285F4",
+    lineHeight: 18,
+    marginTop: 0,
+    fontStyle: "italic",
+  },
+ 
+
+  // ── Footer ──
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+  },
+  footerLink: {
+    fontSize: 11.5,
+    color: COLORS.textMuted,
+    fontWeight: "400",
+    letterSpacing: 0.1,
+    textDecorationLine: "underline",
+    textDecorationColor: "rgba(235,235,245,0.15)",
+  },
+  footerDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: COLORS.textMuted,
+  },
 });
