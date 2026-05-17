@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view, permission_classes
@@ -14,21 +16,48 @@ from django.utils.decorators import method_decorator
 # 🥇 SIGNUP
 @api_view(["POST"])
 def signup(request):
-    username = request.data.get("username")
+
     email = request.data.get("email")
     password = request.data.get("password")
 
-    if not username or not email or not password:
-        return Response({"error": "All fields required"}, status=400)
+    if not email or not password:
+        return Response(
+            {"error": "All fields required"},
+            status=400
+        )
 
-    if User.objects.filter(username=username).exists():
-        return Response({"error": "Username exists"}, status=400)
+    if User.objects.filter(email=email).exists():
+        return Response(
+            {"error": "Email already exists"},
+            status=400
+        )
 
-    user = User.objects.create_user(username=username, email=email, password=password)
+    # TEMP USERNAME
+    username = email
 
-    return Response({"message": "User created"}, status=201)
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        password=password,
+    )
 
+    refresh = RefreshToken.for_user(user)
 
+    return Response(
+        {
+            "access": str(
+                refresh.access_token
+            ),
+
+            "refresh": str(refresh),
+
+            "user": {
+                "id": user.id,
+                "email": user.email,
+            },
+        },
+        status=201,
+    )
 # 🥈 LOGIN
 @api_view(["POST"])
 def login(request):
@@ -72,31 +101,126 @@ def login(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_profile(request):
+
     try:
+
         print("🔥 HIT")
         print("DATA:", request.data)
         print("USER:", request.user)
 
         user = request.user
 
-        if UserProfile.objects.filter(user=user).exists():
-            return Response({"error": "Profile already exists"}, status=400)
+        # PROFILE EXISTS
+        if UserProfile.objects.filter(
+            user=user
+        ).exclude(id=user.id).exists():
 
-        profile = UserProfile.objects.create(
-            user=user,
-            age=request.data.get("age"),
-            gender=request.data.get("gender"),
-            height=request.data.get("height"),
-            weight=request.data.get("weight"),
-            activity_level=request.data.get("activity_level"),
-            goal=request.data.get("goal"),
+            return Response(
+                {
+                    "error":
+                    "Profile already exists"
+                },
+                status=400
+            )
+
+        # 🔥 REAL USERNAME FROM ONBOARDING
+        new_username = request.data.get(
+            "name"
         )
 
-        return Response({"message": "Profile created"})
+        if new_username:
+
+            # CHECK DUPLICATE
+            if User.objects.filter(
+                username=new_username
+            ).exclude(
+                id=user.id
+            ).exists():
+
+                return Response(
+                    {
+                        "error":
+                        "Username already taken"
+                    },
+                    status=400
+                )
+
+            # UPDATE USERNAME
+            user.username = new_username
+            user.save()
+
+        # CREATE PROFILE
+        profile = UserProfile.objects.create(
+            user=user,
+
+            age=request.data.get(
+                "age"
+            ),
+
+            gender=request.data.get(
+                "gender"
+            ),
+
+            height=request.data.get(
+                "height"
+            ),
+
+            weight=request.data.get(
+                "weight"
+            ),
+
+            activity_level=request.data.get(
+                "activity_level"
+            ),
+
+            goal=request.data.get(
+                "goal"
+            ),
+        )
+
+        return Response(
+            {
+                "message":
+                "Profile created",
+
+                "user": {
+                    "id": user.id,
+                    "username":
+                    user.username,
+                    "email":
+                    user.email,
+                },
+            }
+        )
 
     except Exception as e:
-        return Response({"error": str(e)}, status=500)
 
+        return Response(
+            {
+                "error": str(e)
+            },
+            status=500
+        )
+    
+
+# 🥉 Check USERNAME
+@api_view(["POST"])
+def check_username(request):
+
+    username = request.data.get(
+            "username"
+        )
+
+    exists = User.objects.filter(
+        username=username
+    ).exists()
+
+    return Response({
+
+        "available":
+            not exists
+
+    })    
 
 # 🏅 GET GOALS (🔥 yaha use hoga calculate_goals)
 @api_view(["GET"])
@@ -114,3 +238,6 @@ def get_goals(request):
         return Response(
             {"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND
         )
+    
+
+

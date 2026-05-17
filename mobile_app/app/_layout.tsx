@@ -14,6 +14,7 @@ import {
 } from '@tanstack/react-query';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { ToastProvider } from "@/components/ui/NetrilensToast";
 
 const queryClient = new QueryClient();
 
@@ -30,12 +31,12 @@ export default function RootLayout() {
             ? DarkTheme
             : DefaultTheme
         }>
-
-        <Stack
+        <ToastProvider>
+           <Stack
           screenOptions={{
             headerShown: false,
           }}>
-
+        
           <Stack.Screen name="index" />
 
           <Stack.Screen name="onboarding" />
@@ -52,6 +53,7 @@ export default function RootLayout() {
           />
 
         </Stack>
+        </ToastProvider>
 
         <StatusBar style="auto" />
 

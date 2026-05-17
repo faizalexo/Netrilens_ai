@@ -18,6 +18,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { MotiView, MotiText } from "moti";
 import { Easing } from "react-native-reanimated";
+import { useGoogleAuth } from "@/src/auth/googleAuth";
 import {
   X,
   AlignJustify,
@@ -35,15 +36,17 @@ import Svg, {
   Ellipse,
   G
 } from "react-native-svg";
+import { useEffect } from 'react';
 
 import AsyncStorage from
-'@react-native-async-storage/async-storage';
+  '@react-native-async-storage/async-storage';
 
 import api from
-'@/src/services/api';
+  '@/src/services/api';
 
 import { router } from
-'expo-router';
+  'expo-router';
+import { useToast } from "@/components/ui/NetrilensToast";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -286,21 +289,109 @@ export default function AuthScreen() {
   const [rememberMe, setRememberMe] = useState(false);
   const [buttonPressed, setButtonPressed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const { promptAsync, response, } = useGoogleAuth();
+  useEffect(() => {
 
-  const handleLogin =
+    const authenticate =
+      async () => {
+
+        if (
+          response?.type !== 'success'
+        ) {
+          return;
+        }
+
+        console.log(
+          'GOOGLE RESPONSE:',
+          response
+        );
+
+        const accessToken =
+          response.authentication
+            ?.accessToken;
+
+        console.log(
+          'ACCESS TOKEN:',
+          accessToken
+        );
+
+      };
+
+    authenticate();
+
+  }, [response]);
+
+  const [passwordStatus, setPasswordStatus] = useState<"weak" | "good" | null>(null);
+  const validatePassword =
+    (
+      value: string
+    ) => {
+
+      if (
+        value.length < 8
+      ) {
+
+        setPasswordStatus(
+          "weak"
+        );
+
+        return false;
+      }
+
+      setPasswordStatus(
+        "good"
+      );
+
+      return true;
+    };
+  const handleSignup =
     useCallback(async () => {
 
       try {
 
+        // VALIDATION
         if (!email || !password) {
+
+          toast.warning(
+            "Missing Fields",
+            "Enter email and password."
+          );
+
+          return;
+        }
+
+        if (password.length < 8) {
+
+          toast.warning(
+
+            "Weak Password",
+
+            "Password must be at least 8 characters."
+          );
+
           return;
         }
 
         setLoading(true);
 
-        const response =
+        // SIGNUP
+        await api.post(
+
+          '/auth/signup/',
+
+          {
+            email,
+            password,
+          }
+        );
+
+        // AUTO LOGIN
+        const loginResponse =
           await api.post(
+
             '/auth/login/',
+
             {
               email,
               password,
@@ -308,36 +399,81 @@ export default function AuthScreen() {
           );
 
         const data =
-          response.data;
+          loginResponse.data;
 
-        // Save tokens
+        // SAVE ACCESS TOKEN
         await AsyncStorage.setItem(
+
           '@auth_access_token',
+
           data.access
         );
 
+        // SAVE REFRESH TOKEN
         await AsyncStorage.setItem(
+
           '@auth_refresh_token',
+
           data.refresh
         );
 
-        // Save user
+        // SAVE USER
         await AsyncStorage.setItem(
+
           '@auth_user',
+
           JSON.stringify(
             data.user
           )
         );
 
-        // Go to app gatekeeper
-        router.replace('/');
+        // SUCCESS TOAST
+        toast.success(
 
-      } catch (error) {
+          "Account Created",
+
+          "Let's build your AI profile."
+        );
+
+        // PREMIUM DELAY
+        setTimeout(() => {
+
+          router.replace(
+            '/onboarding/basic-info'
+          );
+
+        }, 1000);
+
+      } catch (error: any) {
 
         console.log(
-          'LOGIN ERROR:',
+          'SIGNUP ERROR:',
           error
         );
+
+        // EMAIL EXISTS
+        if (
+          error?.response?.status === 400
+        ) {
+
+          toast.error(
+
+            "Signup Failed",
+
+            "Email already exists."
+          );
+        }
+
+        // NETWORK / SERVER
+        else {
+
+          toast.error(
+
+            "Connection Error",
+
+            "Please try again."
+          );
+        }
 
       } finally {
 
@@ -369,28 +505,28 @@ export default function AuthScreen() {
             {/* ── Top Bar ── */}
             <View style={styles.topBar}>
 
-  <MotiView
-    from={{
-      opacity: 0,
-      translateY: -6
-    }}
-    animate={{
-      opacity: 1,
-      translateY: 0
-    }}
-    transition={{
-      type: "timing",
-      duration: 480,
-      delay: 80
-    }}
-    style={styles.topBarCenter}
-  >
-    <Text style={styles.urlText}>
-      Netrilens AI
-    </Text>
-  </MotiView>
+              <MotiView
+                from={{
+                  opacity: 0,
+                  translateY: -6
+                }}
+                animate={{
+                  opacity: 1,
+                  translateY: 0
+                }}
+                transition={{
+                  type: "timing",
+                  duration: 480,
+                  delay: 80
+                }}
+                style={styles.topBarCenter}
+              >
+                <Text style={styles.urlText}>
+                  Netrilens AI
+                </Text>
+              </MotiView>
 
-</View>
+            </View>
 
             {/* ── Auth Card ── */}
             <MotiView
@@ -466,7 +602,7 @@ export default function AuthScreen() {
                       <Text style={styles.rememberText}>Remember me</Text>
                     </TouchableOpacity>
 
-                    
+
                   </MotiView>
 
                   {/* Continue Button */}
@@ -483,7 +619,7 @@ export default function AuthScreen() {
                         style={styles.continueButton}
                         onPressIn={() => setButtonPressed(true)}
                         onPressOut={() => setButtonPressed(false)}
-                        onPress={handleLogin}
+                        onPress={handleSignup}
                       >
                         <LinearGradient
                           colors={["#FFFFFF", "#E8E8EC"]}
@@ -516,13 +652,14 @@ export default function AuthScreen() {
                     style={styles.socialRow}
                   >
                     {/* Google */}
-                    <TouchableOpacity style={styles.socialButton} activeOpacity={0.75}>
+                    <TouchableOpacity style={styles.socialButton} activeOpacity={0.75} onPress={() => promptAsync()}>
                       <View style={styles.socialInner}>
                         {/* Google G SVG */}
                         <Svg width={20} height={20} viewBox="0 0 48 48">
                           <Circle cx="24" cy="24" r="24" fill="transparent" />
                           <Svg viewBox="0 0 48 48" width={20} height={20}>
                             {/* Simplified Google logo paths via nested SVG */}
+
                           </Svg>
                         </Svg>
                         <GoogleIcon />
@@ -653,18 +790,18 @@ const styles = StyleSheet.create({
 
   // ── Top Bar ──
   topBar: {
-  width: "100%",
-  alignItems: "center",
-  justifyContent: "center",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
 
-  paddingTop: 12,
-  paddingBottom: 8,
-},
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
 
-topBarCenter: {
-  alignItems: "center",
-  justifyContent: "center",
-},
+  topBarCenter: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
   iconButton: {
     width: 40,
     height: 40,
@@ -686,27 +823,27 @@ topBarCenter: {
   },
 
   // ── Card ──
- cardWrapper: {
-  borderRadius: RADIUS.card,
+  cardWrapper: {
+    borderRadius: RADIUS.card,
 
-  overflow: "hidden",
+    overflow: "hidden",
 
-  borderWidth: 0.8,
-  borderColor: COLORS.cardBorder,
+    borderWidth: 0.8,
+    borderColor: COLORS.cardBorder,
 
-  marginTop: "auto",
+    marginTop: "auto",
 
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 24
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 24
+    },
+
+    shadowOpacity: 0.55,
+    shadowRadius: 48,
+
+    elevation: 24,
   },
-
-  shadowOpacity: 0.55,
-  shadowRadius: 48,
-
-  elevation: 24,
-},
   cardBlur: {
     borderRadius: RADIUS.card,
   },
@@ -719,21 +856,21 @@ topBarCenter: {
     overflow: "hidden",
   },
   cardGlowTop: {
-  position: "absolute",
+    position: "absolute",
 
-  top: -53,
-  left: -30,
-  right: -30,
+    top: -53,
+    left: -30,
+    right: -30,
 
-  height: 140,
+    height: 140,
 
-  backgroundColor:
-    "rgba(124, 58, 237, 0.10)",
+    backgroundColor:
+      "rgba(124, 58, 237, 0.10)",
 
-  borderRadius: 180,
+    borderRadius: 180,
 
-  opacity: 0.9,
-},
+    opacity: 0.9,
+  },
 
   // ── Heading ──
   title: {
@@ -925,7 +1062,7 @@ topBarCenter: {
     marginTop: 0,
     fontStyle: "italic",
   },
- 
+
 
   // ── Footer ──
   footer: {
@@ -934,7 +1071,7 @@ topBarCenter: {
     justifyContent: "center",
     marginBottom: 12,
   },
-    footerTxt: {
+  footerTxt: {
     fontSize: 12.5,
     color: COLORS.textSecondary,
     fontWeight: "400",

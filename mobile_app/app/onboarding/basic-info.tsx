@@ -47,7 +47,7 @@ import { GradientButton } from '@/components/ui/GradientButton';
 import { PremiumInput } from '@/components/ui/PremiumInput';
 import { ProgressStepper } from '@/components/ui/ProgressStepper';
 import { useOnboardingStore } from '@/src/store/onboardingStore';
-
+import api from '@/src/services/api';
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Gender = 'Male' | 'Female' | 'Other';
 
@@ -163,7 +163,71 @@ export default function BasicInfoScreen() {
     setGender,
   } = useOnboardingStore();
 
+  const [
 
+    usernameAvailable,
+
+    setUsernameAvailable
+
+  ] = useState<
+    boolean | null
+  >(null);
+  const checkUsername =
+    async (
+      username: string
+    ) => {
+
+      try {
+
+        if (
+          username.length < 3
+        ) {
+
+          setUsernameAvailable(
+            null
+          );
+
+          return;
+        }
+
+        setCheckingUsername(
+          true
+        );
+
+        const response =
+          await api.post(
+
+            "/users/check-username/",
+
+            {
+              username,
+            }
+          );
+
+        setUsernameAvailable(
+          response.data.available
+        );
+
+      } catch {
+
+        setUsernameAvailable(
+          null
+        );
+
+      } finally {
+
+        setCheckingUsername(
+          false
+        );
+      }
+    };
+  const [
+
+    checkingUsername,
+
+    setCheckingUsername
+
+  ] = useState(false);
 
   const handleContinue = () => {
     router.push(
@@ -221,13 +285,43 @@ export default function BasicInfoScreen() {
           <PremiumInput
             label="Your Name"
             value={name}
-            onChangeText={setName}
+            onChangeText={(text) => {
+
+              setName(text);
+
+              checkUsername(text);
+            }}
             placeholder="e.g. Alex Johnson"
             type="text"
             enterDelay={0}
             autoCapitalize="words"
             returnKeyType="next"
           />
+          {
+            checkingUsername ? (
+
+              <Text style={styles.checking}>
+                Checking username...
+              </Text>
+
+            ) :
+
+              usernameAvailable === true ? (
+
+                <Text style={styles.available}>
+                  ✓ Username available
+                </Text>
+
+              ) :
+
+                usernameAvailable === false ? (
+
+                  <Text style={styles.taken}>
+                    Username already taken
+                  </Text>
+
+                ) : null
+          }
 
           <PremiumInput
             label="Age"
@@ -307,7 +401,42 @@ const styles = StyleSheet.create({
   stepper: {
     marginBottom: spacing['6'],
   },
+  checking: {
 
+    color: "#A1A1AA",
+
+    marginTop: 8,
+
+    marginLeft: 6,
+
+    fontSize: 12,
+  },
+
+  available: {
+
+    color: "#4ADE80",
+
+    marginTop: 8,
+
+    marginLeft: 6,
+
+    fontSize: 12,
+
+    fontWeight: "500",
+  },
+
+  taken: {
+
+    color: "#F87171",
+
+    marginTop: 8,
+
+    marginLeft: 6,
+
+    fontSize: 12,
+
+    fontWeight: "500",
+  },
   // ── Typography ─────────────────────────
   sectionHeading: {
     ...typography.sectionHeading,

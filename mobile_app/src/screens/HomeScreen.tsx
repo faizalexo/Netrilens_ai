@@ -155,7 +155,7 @@ const DEFAULT_INSIGHTS: AIInsight[] = [
 function Header({ name }: { name: string }) {
 
   const router = useRouter();
-
+  const { toast } = useToast();
   const initial =
     name.charAt(0).toUpperCase();
 
@@ -164,85 +164,106 @@ function Header({ name }: { name: string }) {
 
       const token =
         await AsyncStorage.getItem(
-          "access"
+          "@auth_access_token"
         );
 
+      // ====================================
       // USER LOGGED IN
+      // ====================================
+
       if (token) {
 
         Alert.alert(
           "Account",
           "Choose an option",
+
           [
             {
               text: "Profile",
+
               onPress: () => {
-                console.log("PROFILE");
+
+                console.log(
+                  "PROFILE"
+                );
               },
             },
 
             {
               text: "Settings",
+
               onPress: () => {
-                console.log("SETTINGS");
+
+                console.log(
+                  "SETTINGS"
+                );
               },
             },
 
             {
               text: "Logout",
+
               style: "destructive",
 
               onPress: async () => {
 
                 await logoutUser();
+                toast.info(
+                  "Logged Out",
+                  "See you again soon."
+                );
 
                 router.replace(
-                  "/login"
+                  "/onboarding/welcome"
                 );
               },
             },
 
             {
               text: "Cancel",
+
               style: "cancel",
             },
           ]
         );
 
+        return;
       }
 
+      // ====================================
       // USER NOT LOGGED IN
-      else {
+      // ====================================
 
-        Alert.alert(
-          "Authentication",
-          "Login to continue",
-          [
-            {
-              text: "Login",
+      Alert.alert(
+        "Authentication",
+        "Login to continue",
 
-              onPress: () =>
-                router.push(
-                  "/login"
-                ),
-            },
+        [
+          {
+            text: "Login",
 
-            {
-              text: "Create Account",
+            onPress: () =>
+              router.push(
+                "/(auth)/login"
+              ),
+          },
 
-              onPress: () =>
-                router.push(
-                  "/register"
-                ),
-            },
+          {
+            text: "Create Account",
 
-            {
-              text: "Cancel",
-              style: "cancel",
-            },
-          ]
-        );
-      }
+            onPress: () =>
+              router.push(
+                "/(auth)/register"
+              ),
+          },
+
+          {
+            text: "Cancel",
+
+            style: "cancel",
+          },
+        ]
+      );
     };
 
   return (
@@ -783,6 +804,7 @@ function MealCard({ meal }: { meal: any }) {
 // ─── Main Home Screen ─────────────────────────────────────────────────────────
 
 import { useLocalSearchParams } from "expo-router";
+import { useToast } from '@/components/ui/NetrilensToast';
 
 export default function HomeScreen({
 

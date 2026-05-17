@@ -37,13 +37,14 @@ import Svg, {
 } from "react-native-svg";
 
 import AsyncStorage from
-'@react-native-async-storage/async-storage';
+  '@react-native-async-storage/async-storage';
 
 import api from
-'@/src/services/api';
+  '@/src/services/api';
 
 import { router } from
-'expo-router';
+  'expo-router';
+import { useToast } from "@/components/ui/NetrilensToast";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -285,21 +286,30 @@ export default function AuthScreen() {
   const [rememberMe, setRememberMe] = useState(false);
   const [buttonPressed, setButtonPressed] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const { toast } = useToast();
   const handleLogin =
     useCallback(async () => {
 
       try {
 
+        // EMPTY VALIDATION
         if (!email || !password) {
+
+          toast.warning(
+            "Missing Fields",
+            "Enter email and password."
+          );
+
           return;
         }
 
         setLoading(true);
 
+        // LOGIN API
         const response =
           await api.post(
             '/auth/login/',
+
             {
               email,
               password,
@@ -309,34 +319,82 @@ export default function AuthScreen() {
         const data =
           response.data;
 
-        // Save tokens
+        // SAVE ACCESS TOKEN
         await AsyncStorage.setItem(
           '@auth_access_token',
           data.access
         );
 
+        // SAVE REFRESH TOKEN
         await AsyncStorage.setItem(
           '@auth_refresh_token',
           data.refresh
         );
 
-        // Save user
+        // SAVE USER
         await AsyncStorage.setItem(
+
           '@auth_user',
+
           JSON.stringify(
             data.user
           )
         );
 
-        // Go to app gatekeeper
-        router.replace('/');
+        // SUCCESS FEEDBACK
+        toast.success(
 
-      } catch (error) {
+          "Welcome Back",
+
+          "Preparing your AI dashboard."
+        );
+
+        // PREMIUM DELAY
+        setTimeout(() => {
+
+          router.replace(
+            '/(tabs)'
+          );
+
+        }, 1000);
+
+      } catch (error: any) {
 
         console.log(
           'LOGIN ERROR:',
           error
         );
+
+        // API ERROR
+        if (
+          error?.response?.status === 401
+        ) {
+
+          toast.error(
+            "Login Failed",
+            "Invalid credentials."
+          );
+
+        }
+
+        else if (
+          error?.response?.status === 404
+        ) {
+
+          toast.error(
+            "User Not Found",
+            "No account exists with this email."
+          );
+
+        }
+
+        else {
+
+          toast.error(
+            "Connection Error",
+            "Please try again."
+          );
+        }
 
       } finally {
 
@@ -368,28 +426,28 @@ export default function AuthScreen() {
             {/* ── Top Bar ── */}
             <View style={styles.topBar}>
 
-  <MotiView
-    from={{
-      opacity: 0,
-      translateY: -6
-    }}
-    animate={{
-      opacity: 1,
-      translateY: 0
-    }}
-    transition={{
-      type: "timing",
-      duration: 480,
-      delay: 80
-    }}
-    style={styles.topBarCenter}
-  >
-    <Text style={styles.urlText}>
-      Netrilens AI
-    </Text>
-  </MotiView>
+              <MotiView
+                from={{
+                  opacity: 0,
+                  translateY: -6
+                }}
+                animate={{
+                  opacity: 1,
+                  translateY: 0
+                }}
+                transition={{
+                  type: "timing",
+                  duration: 480,
+                  delay: 80
+                }}
+                style={styles.topBarCenter}
+              >
+                <Text style={styles.urlText}>
+                  Netrilens AI
+                </Text>
+              </MotiView>
 
-</View>
+            </View>
 
             {/* ── Auth Card ── */}
             <MotiView
@@ -541,7 +599,7 @@ export default function AuthScreen() {
                   </MotiView>
 
                   {/* Footer */}
-                  
+
                   <MotiView
                     from={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -640,18 +698,18 @@ const styles = StyleSheet.create({
 
   // ── Top Bar ──
   topBar: {
-  width: "100%",
-  alignItems: "center",
-  justifyContent: "center",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
 
-  paddingTop: 12,
-  paddingBottom: 8,
-},
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
 
-topBarCenter: {
-  alignItems: "center",
-  justifyContent: "center",
-},
+  topBarCenter: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
   iconButton: {
     width: 40,
     height: 40,
@@ -673,27 +731,27 @@ topBarCenter: {
   },
 
   // ── Card ──
- cardWrapper: {
-  borderRadius: RADIUS.card,
+  cardWrapper: {
+    borderRadius: RADIUS.card,
 
-  overflow: "hidden",
+    overflow: "hidden",
 
-  borderWidth: 0.8,
-  borderColor: COLORS.cardBorder,
+    borderWidth: 0.8,
+    borderColor: COLORS.cardBorder,
 
-  marginTop: "auto",
+    marginTop: "auto",
 
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 24
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 24
+    },
+
+    shadowOpacity: 0.55,
+    shadowRadius: 48,
+
+    elevation: 24,
   },
-
-  shadowOpacity: 0.55,
-  shadowRadius: 48,
-
-  elevation: 24,
-},
   cardBlur: {
     borderRadius: RADIUS.card,
   },
@@ -706,21 +764,21 @@ topBarCenter: {
     overflow: "hidden",
   },
   cardGlowTop: {
-  position: "absolute",
+    position: "absolute",
 
-  top: -53,
-  left: -30,
-  right: -30,
+    top: -53,
+    left: -30,
+    right: -30,
 
-  height: 140,
+    height: 140,
 
-  backgroundColor:
-    "rgba(124, 58, 237, 0.10)",
+    backgroundColor:
+      "rgba(124, 58, 237, 0.10)",
 
-  borderRadius: 180,
+    borderRadius: 180,
 
-  opacity: 0.9,
-},
+    opacity: 0.9,
+  },
 
   // ── Heading ──
   title: {
@@ -912,7 +970,7 @@ topBarCenter: {
     marginTop: 0,
     fontStyle: "italic",
   },
- 
+
 
   // ── Footer ──
   footer: {

@@ -29,6 +29,7 @@ import Animated, {
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 
@@ -538,6 +539,7 @@ export default function AIProcessingScreen() {
 
   const {
     age,
+    name,
     gender,
     height,
     weight,
@@ -576,19 +578,34 @@ export default function AIProcessingScreen() {
 
         // Create profile
 
-        await api.post(
-          '/users/create_profile/',
-          {
-            age,
-            gender,
-            height,
-            weight,
+        const profileResponse =
+          await api.post(
+            '/users/create_profile/',
 
-            activity_level:
-              activityLevel,
+            {
+              name,
+              age,
+              gender,
+              height,
+              weight,
 
-            goal,
-          }
+              activity_level:
+                activityLevel,
+
+              goal,
+            }
+          );
+        console.log(
+          'PROFILE RESPONSE:',
+          profileResponse.data
+        );
+
+        await AsyncStorage.setItem(
+          '@auth_user',
+
+          JSON.stringify(
+            profileResponse.data.user
+          )
         );
 
         // Fetch goals

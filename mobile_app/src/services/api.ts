@@ -32,6 +32,7 @@ const api: AxiosInstance = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
+  
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -138,7 +139,147 @@ const processQueue = (
 // ─────────────────────────────────────────────────────────────
 // RESPONSE INTERCEPTOR
 // ─────────────────────────────────────────────────────────────
+ api.interceptors.response.use(
 
+  (response: AxiosResponse) => {
+
+    return response;
+  },
+
+  async (error: AxiosError) => {
+
+    const originalRequest =
+      error.config as RetryAxiosRequestConfig;
+
+    // TOKEN EXPIRED
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
+
+      // ALREADY REFRESHING
+      if (isRefreshing) {
+
+        return new Promise(
+          (resolve, reject) => {
+
+            failedQueue.push({
+              resolve,
+              reject,
+            });
+
+          }
+        ).then((token) => {
+
+          if (
+            originalRequest.headers
+          ) {
+
+            originalRequest.headers.Authorization =
+              `Bearer ${token}`;
+          }
+
+          return api(
+            originalRequest
+          );
+        });
+      }
+
+      originalRequest._retry = true;
+
+      isRefreshing = true;
+
+      try {
+
+        const refreshToken =
+          await tokenStorage.getRefreshToken();
+
+        // NO REFRESH TOKEN
+        if (!refreshToken) {
+
+          await tokenStorage.clearAll();
+
+          return Promise.reject(error);
+        }
+
+        console.log(
+          "🔄 REFRESHING TOKEN..."
+        );
+
+        // REFRESH REQUEST
+        const response =
+          await axios.post<RefreshResponse>(
+            `${BASE_URL}/auth/token/refresh/`,
+            {
+              refresh:
+                refreshToken,
+            }
+          );
+
+        const {
+          access
+        } = response.data;
+
+        // SAVE NEW TOKEN
+        await AsyncStorage.setItem(
+          STORAGE_KEYS.ACCESS_TOKEN,
+          access
+        );
+
+        // UPDATE AXIOS DEFAULT
+        api.defaults.headers.common.Authorization =
+          `Bearer ${access}`;
+
+        processQueue(
+          null,
+          access
+        );
+
+        console.log(
+          "✅ TOKEN REFRESH SUCCESS"
+        );
+
+        // RETRY ORIGINAL REQUEST
+        if (
+          originalRequest.headers
+        ) {
+
+          originalRequest.headers.Authorization =
+            `Bearer ${access}`;
+        }
+
+        return api(
+          originalRequest
+        );
+
+      } catch (refreshError) {
+
+        console.log(
+          "❌ REFRESH FAILED",
+          refreshError
+        );
+
+        processQueue(
+          refreshError,
+          null
+        );
+
+        // FORCE LOGOUT
+        await tokenStorage.clearAll();
+
+        return Promise.reject(
+          refreshError
+        );
+
+      } finally {
+
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 
 // ─────────────────────────────────────────────────────────────
