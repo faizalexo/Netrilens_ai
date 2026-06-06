@@ -10,10 +10,11 @@ import {
 import { router } from "expo-router";
 
 import AsyncStorage from
-"@react-native-async-storage/async-storage";
+  "@react-native-async-storage/async-storage";
 
 import { LinearGradient }
-from "expo-linear-gradient";
+  from "expo-linear-gradient";
+import { authApi } from "@/src/services/api";
 
 // ========================================
 
@@ -22,38 +23,24 @@ export default function Index() {
   const [loading, setLoading] =
     useState(true);
 
+
+
   useEffect(() => {
 
     const bootstrap =
       async () => {
-
+      await authApi.hydrateAuth();
         try {
 
-          // TOKEN
           const token =
             await AsyncStorage.getItem(
               "@auth_access_token"
-            );
-
-          // ONBOARDING
-          const onboardingComplete =
-            await AsyncStorage.getItem(
-              "@onboarding_complete"
             );
 
           console.log(
             "TOKEN:",
             token
           );
-
-          console.log(
-            "ONBOARDING:",
-            onboardingComplete
-          );
-
-          // ====================================
-          // NO TOKEN
-          // ====================================
 
           if (!token) {
 
@@ -63,27 +50,6 @@ export default function Index() {
 
             return;
           }
-
-          // ====================================
-          // TOKEN EXISTS
-          // BUT ONBOARDING INCOMPLETE
-          // ====================================
-
-          if (
-            onboardingComplete !==
-            "true"
-          ) {
-
-            router.replace(
-              "/onboarding/basic-info"
-            );
-
-            return;
-          }
-
-          // ====================================
-          // FULLY AUTHENTICATED
-          // ====================================
 
           router.replace(
             "/(tabs)"

@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "@types/node": "^25.9.1"
+  },
+  "dependencies": {
+    "expo-notifications": "^56.0.15"
+  }
+}

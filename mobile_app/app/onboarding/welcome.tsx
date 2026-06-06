@@ -369,6 +369,7 @@ const AIOrb: React.FC = () => {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 export default function WelcomeScreen() {
   const router = useRouter();
+  
 
   return (
     <View style={styles.root}>

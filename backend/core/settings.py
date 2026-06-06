@@ -53,7 +53,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ BASE_DIR / "templates"  ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,7 +67,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
+GOOGLE_WEB_CLIENT_ID = "64625057650-l12k21bidhfedijfvcb7uegm7u6erbld.apps.googleusercontent.com"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
@@ -130,6 +130,9 @@ REST_FRAMEWORK = {
     ),
 }
 
+
+
+
 SIMPLE_JWT = {
 
     "ACCESS_TOKEN_LIFETIME":
@@ -147,3 +150,21 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN":
         True,
 }
+
+#MEDIA SECTION
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / "media"
+
+#EMAIL WORKFLOW SETTINGS
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "support.netrilens@gmail.com"
+EMAIL_HOST_PASSWORD = "hlvpqsgeksyibadw"
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

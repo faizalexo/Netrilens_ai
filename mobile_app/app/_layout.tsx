@@ -15,9 +15,15 @@ import {
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ToastProvider } from "@/components/ui/NetrilensToast";
+import { setupNotifications } from '@/src/services/notificationService';
+import { useEffect } from 'react';
 
 const queryClient = new QueryClient();
+useEffect(() => {
 
+  setupNotifications();
+
+}, []);
 export default function RootLayout() {
 
   const colorScheme = useColorScheme();

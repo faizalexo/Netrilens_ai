@@ -1,0 +1,100 @@
+Name,Calories (per 100g),Protein (g),Carbs (g),Fat (g),Category,Contains Dairy,Serving Size,Serving Unit,Keywords/Tags
+Mutton,294,25.6,0.0,21.0,Red Meat,No,100,g,mutton goat meat gosht bakra
+Chicken Breast,165,31.0,0.0,3.6,Poultry,No,100,g,murgi chicken breast skinless
+Chicken Thigh,209,26.0,0.0,11.0,Poultry,No,100,g,murgi thigh chicken piece
+Chicken Wings,203,30.3,0.0,8.1,Poultry,No,100,g,murgi wings chicken party
+Whole Egg,155,13.0,1.1,11.0,Egg,No,100,g,anda egg boiled scrambled
+Egg White,52,11.0,0.7,0.2,Egg,No,100,g,anda safed egg white protein
+Egg Yolk,322,15.9,3.6,26.5,Egg,No,100,g,anda yolk egg yellow
+Salmon,208,20.0,0.0,13.0,Fish,No,100,g,salmon fish omega-3
+Tuna (Raw),132,28.0,0.0,1.0,Fish,No,100,g,tuna fish protein
+Rohu Fish,97,17.0,0.0,2.9,Fish,No,100,g,rohu fish rui machli Indian
+Catla Fish,111,19.0,0.0,3.5,Fish,No,100,g,catla fish katla machli
+Hilsa Fish,273,21.5,0.0,19.7,Fish,No,100,g,hilsa fish ilish machli bengali
+Pomfret,97,18.5,0.0,2.4,Fish,No,100,g,pomfret fish paplet machli
+Sardine,208,24.6,0.0,11.5,Fish,No,100,g,sardine fish small oily
+Prawns/Shrimp,106,20.3,1.5,1.7,Seafood,No,100,g,jhinga prawn shrimp seafood
+Tiger Prawns,90,20.0,0.0,1.0,Seafood,No,100,g,tiger prawn big jhinga seafood
+Lobster,89,19.0,0.5,0.9,Seafood,No,100,g,lobster seafood luxury
+Crab,97,18.1,0.0,2.0,Seafood,No,100,g,kekda crab seafood
+Squid,92,15.6,3.1,1.4,Seafood,No,100,g,squid calamari seafood
+Mussels,86,11.9,3.7,2.2,Seafood,No,100,g,mussels shellfish seafood
+Lamb,294,25.6,0.0,21.0,Red Meat,No,100,g,lamb meat red meat bakra
+Beef,250,26.0,0.0,15.0,Red Meat,No,100,g,beef cow meat gai
+Pork,242,27.0,0.0,14.0,Red Meat,No,100,g,pork pig suvar meat
+Bacon,541,37.0,1.4,41.6,Pork,No,100,g,bacon pork breakfast rasher
+Sausage,301,12.0,3.0,26.6,Processed Meat,No,100,g,sausage frankfurt meat snack
+Duck,337,19.0,0.0,28.4,Poultry,No,100,g,duck poultry meat batakh
+Turkey,189,29.0,0.0,7.4,Poultry,No,100,g,turkey poultry Christmas
+Quail,134,22.6,0.0,4.5,Poultry,No,100,g,quail bater bird poultry
+Rabbit,173,33.0,0.0,3.5,Game Meat,No,100,g,rabbit meat khargosh
+Venison,158,30.2,0.0,3.2,Game Meat,No,100,g,venison deer meat hiran
+Chicken Tikka,190,30.0,4.0,6.0,Indian Dish,Yes,100,g,chicken tikka tandoor Indian starter
+Butter Chicken,150,16.0,7.0,7.0,Indian Dish,Yes,100,g,butter chicken murgh makhani dal makhani
+Chicken Biryani,200,14.0,25.0,6.0,Indian Rice Dish,No,100,g,chicken biryani rice Indian main course
+Mutton Biryani,230,15.0,22.0,10.0,Indian Rice Dish,No,100,g,mutton biryani gosht rice Indian
+Prawn Biryani,185,15.0,22.0,5.0,Indian Rice Dish,No,100,g,prawn biryani jhinga rice seafood
+Chicken Curry,175,18.0,5.0,9.0,Indian Dish,No,100,g,chicken curry murgi gravy Indian
+Mutton Curry,250,18.0,6.0,17.0,Indian Dish,No,100,g,mutton curry gosht gravy Indian
+Fish Curry,140,18.0,4.0,6.0,Indian Dish,No,100,g,fish curry machli Indian gravy
+Prawn Masala,160,18.0,5.0,7.0,Indian Dish,No,100,g,prawn masala jhinga Indian seafood
+Chicken Korma,210,17.0,7.0,13.0,Indian Dish,Yes,100,g,chicken korma Mughal rich gravy
+Mutton Rogan Josh,220,17.0,6.0,15.0,Indian Dish,No,100,g,rogan josh mutton Kashmiri dish
+Chicken Vindaloo,180,17.0,8.0,9.0,Indian Dish,No,100,g,vindaloo spicy Goan chicken curry
+Mutton Keema,280,22.0,4.0,19.0,Indian Dish,No,100,g,keema mince mutton Indian
+Chicken Keema,190,22.0,4.0,10.0,Indian Dish,No,100,g,keema mince chicken Indian
+Seekh Kebab,230,22.0,4.0,14.0,Indian Dish,No,100,g,seekh kebab minced meat Indian BBQ
+Tandoori Chicken,180,28.0,3.0,6.0,Indian Dish,No,100,g,tandoori chicken oven BBQ Indian
+Chicken Shami Kebab,210,18.0,8.0,12.0,Indian Dish,No,100,g,shami kebab chicken Indian patty
+Mutton Shami Kebab,240,19.0,7.0,15.0,Indian Dish,No,100,g,shami kebab mutton Indian
+Egg Curry,160,11.0,5.0,11.0,Indian Dish,No,100,g,anda curry egg Indian gravy
+Egg Bhurji,160,11.0,2.0,12.0,Indian Dish,No,100,g,egg bhurji scrambled eggs Indian
+Chicken 65,280,24.0,10.0,16.0,Indian Dish,No,100,g,chicken 65 South Indian spicy fried
+Chicken Lollipop,220,18.0,8.0,13.0,Indian Dish,No,100,g,chicken lollipop starter Indo-Chinese
+Mutton Paya,200,17.0,3.0,14.0,Indian Dish,No,100,g,paya trotters mutton soup Indian
+Haleem,180,14.0,12.0,8.0,Indian Dish,No,100,g,haleem mutton wheat slow cooked
+Nihari,280,18.0,6.0,20.0,Indian Dish,No,100,g,nihari mutton slow cook Indian Mughal
+Fish Fry,220,20.0,8.0,12.0,Indian Dish,No,100,g,fish fry machli tali South Indian
+Prawn Koliwada,250,17.0,10.0,16.0,Indian Dish,No,100,g,prawn koliwada starter Mumbai
+Goan Fish Curry,150,17.0,5.0,7.0,Indian Dish,No,100,g,Goan fish curry coconut machli
+Chettinad Chicken,210,19.0,5.0,13.0,Indian Dish,No,100,g,chettinad chicken South Indian spicy
+Laal Maas,300,18.0,5.0,23.0,Indian Dish,No,100,g,laal maas Rajasthani red mutton curry
+Nalli Nihari,310,16.0,7.0,24.0,Indian Dish,No,100,g,nalli nihari bone marrow mutton
+Kheema Pav,270,20.0,18.0,13.0,Indian Street Food,No,100,g,kheema pav Mumbai street food
+Chicken Frankie,240,14.0,25.0,9.0,Indian Street Food,No,100,g,frankie roll chicken wrap Mumbai
+Egg Frankie,210,10.0,25.0,9.0,Indian Street Food,No,100,g,egg frankie roll wrap Mumbai street food
+Chicken Shawarma,230,17.0,20.0,9.0,Street Food,No,100,g,shawarma chicken roll wrap Middle Eastern
+Mutton Seekh Roll,270,18.0,22.0,12.0,Indian Street Food,No,100,g,seekh roll mutton wrap street food
+Chicken Kathi Roll,250,16.0,24.0,10.0,Indian Street Food,No,100,g,kathi roll chicken Kolkata street food
+Fish Tacos,200,14.0,20.0,8.0,Fusion Dish,No,100,g,fish tacos Mexican fusion
+Chicken Burger,280,18.0,25.0,12.0,Fast Food,Yes,100,g,chicken burger fast food sandwich
+Chicken Sandwich,220,16.0,22.0,8.0,Fast Food,Yes,100,g,chicken sandwich bread fast food
+Prawn Tempura,230,12.0,20.0,12.0,Japanese Dish,No,100,g,tempura prawn Japanese fried
+Sushi Salmon,170,11.0,20.0,5.0,Japanese Dish,No,100,g,sushi salmon Japanese rice fish
+Chicken Fried Rice,200,10.0,28.0,6.0,Chinese Dish,No,100,g,fried rice chicken Indo-Chinese
+Prawn Fried Rice,190,10.0,26.0,6.0,Chinese Dish,No,100,g,fried rice prawn Indo-Chinese
+Chicken Noodles,210,11.0,27.0,7.0,Chinese Dish,No,100,g,noodles chicken chowmein Indo-Chinese
+Fish Manchurian,200,14.0,12.0,11.0,Chinese Dish,No,100,g,fish manchurian Indo-Chinese
+Chicken Manchurian,220,16.0,12.0,12.0,Chinese Dish,No,100,g,chicken manchurian Indo-Chinese
+Mutton Kofta,270,19.0,6.0,19.0,Indian Dish,No,100,g,kofta mutton meatball Indian
+Chicken Malai Tikka,230,25.0,3.0,13.0,Indian Dish,Yes,100,g,malai tikka chicken creamy tikka
+Handi Chicken,210,18.0,5.0,13.0,Indian Dish,No,100,g,handi chicken clay pot Indian
+Chicken Kadai,185,18.0,6.0,10.0,Indian Dish,No,100,g,kadai chicken Indian wok
+Mutton Kadai,240,17.0,6.0,17.0,Indian Dish,No,100,g,kadai mutton Indian wok
+Achari Chicken,190,17.0,7.0,11.0,Indian Dish,No,100,g,achari chicken pickle spice Indian
+Chicken Saag,160,16.0,5.0,9.0,Indian Dish,No,100,g,saag chicken spinach Indian
+Mutton Saag,210,15.0,5.0,14.0,Indian Dish,No,100,g,saag mutton spinach Indian
+Chicken Pasanda,220,18.0,6.0,14.0,Indian Dish,Yes,100,g,pasanda chicken Mughal Indian
+Mutton Pasanda,250,17.0,5.0,18.0,Indian Dish,Yes,100,g,pasanda mutton Mughal Indian
+Bhuna Chicken,195,19.0,4.0,11.0,Indian Dish,No,100,g,bhuna chicken dry masala Indian
+Bhuna Mutton,240,16.0,5.0,17.0,Indian Dish,No,100,g,bhuna mutton dry masala Indian
+Hariyali Chicken,185,19.0,4.0,10.0,Indian Dish,No,100,g,hariyali chicken green mint coriander
+Karahi Gosht,245,17.0,5.0,17.0,Indian Dish,No,100,g,karahi gosht mutton wok Pakistani
+Kolhapuri Chicken,215,18.0,6.0,13.0,Indian Dish,No,100,g,Kolhapuri chicken spicy Maharashtra
+Lamb Chops,285,24.0,0.0,20.0,Red Meat,No,100,g,lamb chops chaap grilled BBQ
+Mutton Chaap,295,20.0,3.0,22.0,Indian Dish,No,100,g,chaap mutton Indian grilled
+Liver (Goat/Mutton),165,26.0,3.7,5.0,Organ Meat,No,100,g,kaleji liver organ meat goat
+Chicken Liver,172,26.5,1.0,7.5,Organ Meat,No,100,g,kaleji liver chicken organ
+Goat Brain,150,10.8,1.1,11.5,Organ Meat,No,100,g,bheja brain goat organ
+Mutton Intestine,130,14.0,0.0,8.0,Organ Meat,No,100,g,ojri tripe intestine mutton
+Mutton Biryani,230,15.0,22.0,10.0,Indian Rice Dish,No,100,g,mutton biryani gosht rice Indian

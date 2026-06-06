@@ -18,7 +18,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { MotiView, MotiText } from "moti";
 import { Easing } from "react-native-reanimated";
-import { useGoogleAuth } from "@/src/auth/googleAuth";
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import {
   X,
   AlignJustify,
@@ -47,6 +47,7 @@ import api from
 import { router } from
   'expo-router';
 import { useToast } from "@/components/ui/NetrilensToast";
+import { signInWithGoogle } from '../../src/auth/googleAuth';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -290,37 +291,21 @@ export default function AuthScreen() {
   const [buttonPressed, setButtonPressed] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const { promptAsync, response, } = useGoogleAuth();
-  useEffect(() => {
+  const handleGoogleLogin = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
 
-    const authenticate =
-      async () => {
+      const result =
+        await GoogleSignin.signIn();
 
-        if (
-          response?.type !== 'success'
-        ) {
-          return;
-        }
+      console.log(result);
 
-        console.log(
-          'GOOGLE RESPONSE:',
-          response
-        );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-        const accessToken =
-          response.authentication
-            ?.accessToken;
 
-        console.log(
-          'ACCESS TOKEN:',
-          accessToken
-        );
-
-      };
-
-    authenticate();
-
-  }, [response]);
 
   const [passwordStatus, setPasswordStatus] = useState<"weak" | "good" | null>(null);
   const validatePassword =
@@ -652,7 +637,57 @@ export default function AuthScreen() {
                     style={styles.socialRow}
                   >
                     {/* Google */}
-                    <TouchableOpacity style={styles.socialButton} activeOpacity={0.75} onPress={() => promptAsync()}>
+
+                    <TouchableOpacity style={styles.socialButton} activeOpacity={0.75} onPress={async () => {
+
+                      try {
+                        await GoogleSignin.signOut();
+                        const user = await signInWithGoogle();
+
+                        const idToken = user.data?.idToken;
+
+
+                        console.log('ID TOKEN:', idToken);
+
+                        // Backend call
+                        const response = await api.post(
+                          '/users/auth/google/',
+                          {
+                            id_token: idToken,
+                          }
+                        );
+
+                        const data = response.data;
+
+                        await AsyncStorage.setItem(
+                          "@auth_access_token",
+                          data.access
+                        );
+
+                        await AsyncStorage.setItem(
+                          "@auth_refresh_token",
+                          data.refresh
+                        );
+
+                        await AsyncStorage.setItem(
+                          "@auth_user",
+                          JSON.stringify(data.user)
+                        );
+
+                        router.replace("/");
+
+                        console.log(
+                          'BACKEND RESPONSE:',
+                          response.data
+                        );
+
+                      } catch (error) {
+                        console.log(error);
+                      }
+
+                    }}
+                    >
+
                       <View style={styles.socialInner}>
                         {/* Google G SVG */}
                         <Svg width={20} height={20} viewBox="0 0 48 48">

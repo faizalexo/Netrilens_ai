@@ -11,12 +11,7 @@ export const logoutUser =
       console.log(
         "🚪 LOGGING OUT..."
       );
-
-      await AsyncStorage.multiRemove([
-        "@auth_access_token",
-        "@auth_refresh_token",
-        "@auth_user",
-      ]);
+      await AsyncStorage.clear();
 
       console.log(
         "✅ LOGOUT SUCCESS"

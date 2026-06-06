@@ -1,3 +1,10 @@
+from datetime import timedelta
+from django.utils import timezone
+
+
+
+
+
 def calculate_goals(profile):
     # 🛡️ Safe parsing
     weight = float(profile.weight or 0)
@@ -66,3 +73,41 @@ def calculate_goals(profile):
         "fats": round(fats),
         "insights": insights
     }
+
+
+
+
+
+# streak logic
+def update_streak(profile):
+
+    today = timezone.now().date()
+
+    # Already counted today
+    if profile.last_active_date == today:
+        return
+
+    yesterday = today - timedelta(days=1)
+
+    # Continue streak
+    if profile.last_active_date == yesterday:
+
+        profile.current_streak += 1
+
+    else:
+
+        profile.current_streak = 1
+
+    # Update longest streak
+    if (
+        profile.current_streak >
+        profile.longest_streak
+    ):
+
+        profile.longest_streak = (
+            profile.current_streak
+        )
+
+    profile.last_active_date = today
+
+    profile.save()

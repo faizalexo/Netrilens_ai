@@ -12,14 +12,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 from apps.tracking.models import Meal
-
-from .services import (
-    create_meal_entry,
-    list_meal_entries,
-    build_daily_summary,
-)
-
+from apps.users.models import UserProfile
+from apps.users.utils import (update_streak, calculate_goals)
+from .services import (create_meal_entry, list_meal_entries, build_daily_summary,)
 User = get_user_model()
+from rest_framework import status
+from .models import Meal
+
 
 
 
@@ -324,6 +323,38 @@ def daily_summary(request):
          )
 
         summary = build_daily_summary(entries)
+        profile = UserProfile.objects.get(
+            user=request.user
+        )
+        goals = calculate_goals(profile)
+        
+        total_calories = (
+             summary["totals"]["calories"]
+        )
+        total_protein = (
+             summary["totals"]["protein"]
+        )
+        
+        goal_calories = goals["calories"]
+        
+        goal_protein = goals["protein"]
+        
+        calorie_complete = (
+            total_calories >=
+            goal_calories * 0.7
+        )
+        protein_complete = (
+            total_protein >=
+            goal_protein * 0.7
+        )
+        
+        if (
+            calorie_complete and
+            protein_complete
+        ):
+            update_streak(profile)
+            print("STREAK UPDATED FOR USER:", profile.user.username)
+            
         print("DATE:", request.GET.get("date"))
         # SAFETY FALLBACK
         if not summary:
@@ -340,11 +371,31 @@ def daily_summary(request):
 
         return Response(
             {
-                "user_name": request.user.username,
-                "totals": summary.get("totals", {}),
-                "meals": summary.get("meals", []),
-            },
-            status=200,
+            "user_name":
+                request.user.username,
+
+            "totals":
+                summary.get(
+                    "totals",
+                    {}
+            ),
+
+            "meals":
+                summary.get(
+                    "meals",
+                    []
+            ),
+
+            "streak": {
+
+                "current":
+                    profile.current_streak,
+
+                "longest":
+                    profile.longest_streak,
+            }
+         },
+         status=200,
         )
 
     except ValueError as e:
@@ -354,3 +405,56 @@ def daily_summary(request):
         print("🔥 SUMMARY ERROR:", e)
         print("ENTRIES:", entries.count())
         return Response({"error": "Internal server error"}, status=500)
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_meal(request, meal_id):
+
+    try:
+        meal = Meal.objects.get(
+            id=meal_id,
+            user=request.user
+        )
+
+        meal.delete()
+
+        return Response({
+            "success": True,
+            "message": "Meal deleted"
+        })
+
+    except Meal.DoesNotExist:
+
+        return Response({
+            "success": False,
+            "message": "Meal not found"
+        }, status=status.HTTP_404_NOT_FOUND)
+        
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_meal(request, meal_id):
+
+    try:
+        meal = Meal.objects.get(
+            id=meal_id,
+            user=request.user
+        )
+
+        grams = request.data.get("grams")
+
+        if grams:
+            meal.grams = grams
+
+        meal.save()
+
+        return Response({
+            "success": True,
+            "message": "Meal updated"
+        })
+
+    except Meal.DoesNotExist:
+
+        return Response({
+            "success": False,
+            "message": "Meal not found"
+        }, status=status.HTTP_404_NOT_FOUND)        

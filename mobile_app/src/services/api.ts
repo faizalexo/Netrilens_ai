@@ -11,8 +11,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // ─────────────────────────────────────────────────────────────
 
 // ⚠️ Replace with your local IP
-// Example: http://192.168.1.5:8000/api
-const BASE_URL = "http://192.168.1.4:8000/api";
+// Example: http://192.168.1.3:8000/api
+const BASE_URL = "http://192.168.1.3:8000/api";
 
 // Storage Keys
 export const STORAGE_KEYS = {

@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BASE_URL =
-  "http://192.168.1.4:8000/api";
+  "http://192.168.1.3:8000/api";
 
 /*
 |--------------------------------------------------------------------------
@@ -146,3 +146,73 @@ export const getSummary =
 
     return await res.json();
   };
+
+  /*
+|--------------------------------------------------------------------------
+| Delete MEAL
+|--------------------------------------------------------------------------
+*/
+
+export const deleteMeal =
+  async (mealId: number) => {
+
+    const headers =
+      await getAuthHeaders();
+
+    const res = await fetch(
+      `${BASE_URL}/tracking/meal/${mealId}/delete/`,
+      {
+        method: "DELETE",
+        headers,
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(
+        "Delete failed"
+      );
+    }
+
+    return await res.json();
+};
+
+/*
+|--------------------------------------------------------------------------
+| Update MEAL
+|--------------------------------------------------------------------------
+*/
+
+export const updateMeal =
+  async (
+    mealId: number,
+    grams: number
+  ) => {
+
+    const headers =
+      await getAuthHeaders();
+
+    const res = await fetch(
+      `${BASE_URL}/tracking/meal/${mealId}/update/`,
+      {
+        method: "PATCH",
+
+        headers: {
+          ...headers,
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          grams,
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(
+        "Update failed"
+      );
+    }
+
+    return await res.json();
+};

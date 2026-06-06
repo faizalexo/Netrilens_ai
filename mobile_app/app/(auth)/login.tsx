@@ -45,6 +45,8 @@ import api from
 import { router } from
   'expo-router';
 import { useToast } from "@/components/ui/NetrilensToast";
+import { signInWithGoogle } from '../../src/auth/googleAuth';
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -342,19 +344,53 @@ export default function AuthScreen() {
         );
 
         // SUCCESS FEEDBACK
+
         toast.success(
-
           "Welcome Back",
-
           "Preparing your AI dashboard."
         );
 
-        // PREMIUM DELAY
-        setTimeout(() => {
+        setTimeout(async () => {
 
-          router.replace(
-            '/(tabs)'
-          );
+          try {
+
+            const goalsResponse =
+              await api.get(
+                "/users/get_goals/"
+              );
+
+            console.log(
+              "GOALS RESPONSE:",
+              goalsResponse.data
+            );
+
+            if (
+              goalsResponse.data
+                .onboarding_complete === false
+            ) {
+
+              router.replace(
+                "/onboarding/basic-info"
+              );
+
+            } else {
+
+              router.replace(
+                "/(tabs)"
+              );
+            }
+
+          } catch (error) {
+
+            console.log(
+              "GOALS ERROR:",
+              error
+            );
+
+            router.replace(
+              "/onboarding/basic-info"
+            );
+          }
 
         }, 1000);
 
@@ -523,8 +559,17 @@ export default function AuthScreen() {
                       <Text style={styles.rememberText}>Remember me</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity activeOpacity={0.7}>
-                      <Text style={styles.forgotText}>Forget Password?</Text>
+                    <TouchableOpacity
+                      activeOpacity={0.7}
+                      onPress={() =>
+                        router.push(
+                          "/(auth)/forgot-password"
+                        )
+                      }
+                    >
+                      <Text style={styles.forgotText}>
+                        Forget Password?
+                      </Text>
                     </TouchableOpacity>
                   </MotiView>
 
@@ -575,13 +620,78 @@ export default function AuthScreen() {
                     style={styles.socialRow}
                   >
                     {/* Google */}
-                    <TouchableOpacity style={styles.socialButton} activeOpacity={0.75}>
+                    <TouchableOpacity style={styles.socialButton} activeOpacity={0.75} onPress={async () => {
+
+                      try {
+                        await GoogleSignin.signOut();
+                        const user = await signInWithGoogle();
+
+                        const idToken = user.data?.idToken;
+
+
+                        console.log('ID TOKEN:', idToken);
+
+                        // Backend call
+                        const response = await api.post(
+                          '/users/auth/google/',
+                          {
+                            id_token: idToken,
+                          }
+                        );
+
+                        const data = response.data;
+
+                        await AsyncStorage.setItem(
+                          "@auth_refresh_token",
+                          response.data.refresh
+                        );
+
+                        await AsyncStorage.setItem(
+                          "@auth_user",
+                          JSON.stringify(response.data.user)
+                        );
+
+                        await AsyncStorage.setItem(
+                          "@auth_refresh_token",
+                          data.refresh
+                        );
+
+                        if (
+                          response.data.profile_exists
+                        ) {
+
+                          router.replace(
+                            "/(tabs)"
+                          );
+
+                        } else {
+
+                          router.replace(
+                            "/onboarding/basic-info"
+                          );
+                        }
+
+
+
+                        console.log(
+                          'BACKEND RESPONSE:',
+                          response.data
+                        );
+
+                      } catch (error) {
+                        console.log(error);
+                      }
+
+                    }}
+                    >
+
                       <View style={styles.socialInner}>
                         {/* Google G SVG */}
                         <Svg width={20} height={20} viewBox="0 0 48 48">
                           <Circle cx="24" cy="24" r="24" fill="transparent" />
                           <Svg viewBox="0 0 48 48" width={20} height={20}>
                             {/* Simplified Google logo paths via nested SVG */}
+
                           </Svg>
                         </Svg>
                         <GoogleIcon />

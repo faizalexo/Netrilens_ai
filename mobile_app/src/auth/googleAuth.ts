@@ -1,34 +1,35 @@
-import * as WebBrowser from 'expo-web-browser';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 
-import * as Google from 'expo-auth-session/providers/google';
+GoogleSignin.configure({
+  webClientId:
+    '64625057650-l12k21bidhfedijfvcb7uegm7u6erbld.apps.googleusercontent.com',
+  offlineAccess: true,
+});
 
-WebBrowser.maybeCompleteAuthSession();
+export const signInWithGoogle = async () => {
+  try {
+    await GoogleSignin.hasPlayServices();
 
-export function useGoogleAuth() {
+    const userInfo =
+      await GoogleSignin.signIn();
 
-  const [
+    console.log(
+      'GOOGLE USER:',
+      userInfo
+    );
 
-    request,
+    return userInfo;
 
-    response,
+  } catch (error: any) {
 
-    promptAsync,
+    console.log(
+      'GOOGLE ERROR:',
+      error
+    );
 
-  ] = Google.useAuthRequest({
-
-    androidClientId:
-      '64625057650-neffdbmobtd0kfe74ck8uj4jbgbojqna.apps.googleusercontent.com',
-
-    webClientId:
-      '64625057650-l12k21bidhfedijfvcb7uegm7u6erbld.apps.googleusercontent.com',
-  });
-
-  return {
-
-    request,
-
-    response,
-
-    promptAsync,
-  };
-}
+    throw error;
+  }
+};

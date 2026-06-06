@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Animated,
   Dimensions,
   StatusBar,
+  Image,
   Platform,
 } from 'react-native';
 import Svg, {
@@ -20,12 +21,15 @@ import Svg, {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { getSummary, getTodayMeals } from "../services/trackingService";
-import { getGoals } from "../services/api";
+import api, { getGoals } from "../services/api";
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   logoutUser,
 } from "../services/api";
+
+
 // ─── Design Tokens ──────────────────────────────────────────────────────────
 const formatNumber = (
   value?: number
@@ -154,117 +158,52 @@ const DEFAULT_INSIGHTS: AIInsight[] = [
 /** Greeting header row with avatar */
 function Header({ name }: { name: string }) {
 
+
+  const [
+    profileImage,
+    setProfileImage
+  ] = useState<string | null>(
+    null
+  );
+
   const router = useRouter();
   const { toast } = useToast();
   const initial =
-    name.charAt(0).toUpperCase();
+    name?.charAt(0)?.toUpperCase() || "U";
 
-  const handleProfilePress =
-    async () => {
 
-      const token =
-        await AsyncStorage.getItem(
-          "@auth_access_token"
+  const loadProfileImage = async () => {
+
+    try {
+
+      const response =
+        await api.get(
+          "/users/profile/"
         );
 
-      // ====================================
-      // USER LOGGED IN
-      // ====================================
-
-      if (token) {
-
-        Alert.alert(
-          "Account",
-          "Choose an option",
-
-          [
-            {
-              text: "Profile",
-
-              onPress: () => {
-
-                console.log(
-                  "PROFILE"
-                );
-              },
-            },
-
-            {
-              text: "Settings",
-
-              onPress: () => {
-
-                console.log(
-                  "SETTINGS"
-                );
-              },
-            },
-
-            {
-              text: "Logout",
-
-              style: "destructive",
-
-              onPress: async () => {
-
-                await logoutUser();
-                toast.info(
-                  "Logged Out",
-                  "See you again soon."
-                );
-
-                router.replace(
-                  "/onboarding/welcome"
-                );
-              },
-            },
-
-            {
-              text: "Cancel",
-
-              style: "cancel",
-            },
-          ]
-        );
-
-        return;
-      }
-
-      // ====================================
-      // USER NOT LOGGED IN
-      // ====================================
-
-      Alert.alert(
-        "Authentication",
-        "Login to continue",
-
-        [
-          {
-            text: "Login",
-
-            onPress: () =>
-              router.push(
-                "/(auth)/login"
-              ),
-          },
-
-          {
-            text: "Create Account",
-
-            onPress: () =>
-              router.push(
-                "/(auth)/register"
-              ),
-          },
-
-          {
-            text: "Cancel",
-
-            style: "cancel",
-          },
-        ]
+      setProfileImage(
+        response.data.profile_image
       );
-    };
+
+      console.log(
+        "PROFILE IMAGE:",
+        response.data.profile_image
+      );
+
+    } catch (error) {
+
+      console.log(
+        "PROFILE IMAGE ERROR:",
+        error
+      );
+    }
+  };
+
+  const handleProfilePress = () => {
+
+    router.push("/profile");
+
+  };
 
   return (
     <View style={s.headerRow}>
@@ -280,24 +219,38 @@ function Header({ name }: { name: string }) {
       </View>
 
       <TouchableOpacity
-        activeOpacity={0.85}
         onPress={handleProfilePress}
       >
-        <LinearGradient
-          colors={[
-            C.accent3,
-            C.accent2
-          ]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={s.avatar}
-        >
-          <Text style={s.avatarText}>
-            {initial}
-          </Text>
-        </LinearGradient>
-      </TouchableOpacity>
 
+        {profileImage ? (
+
+          <Image
+            source={{
+              uri:
+                profileImage
+            }}
+            style={{
+              width: 42,
+              height: 42,
+              borderRadius: 21,
+            }}
+          />
+
+        ) : (
+
+          <View style={s.avatar}>
+
+            <Text
+              style={s.avatarText}
+            >
+              {initial}
+            </Text>
+
+          </View>
+
+        )}
+
+      </TouchableOpacity>
     </View>
   );
 }
@@ -805,6 +758,7 @@ function MealCard({ meal }: { meal: any }) {
 
 import { useLocalSearchParams } from "expo-router";
 import { useToast } from '@/components/ui/NetrilensToast';
+import { sendStreakReminder } from '../services/notificationService';
 
 export default function HomeScreen({
 
@@ -858,7 +812,7 @@ export default function HomeScreen({
   // 🥉 NAV HANDLERS
   const handleScan = onScanPress ?? (() => router.push("/scan"));
   const handleAddMeal = onAddMealPress ?? (() => router.push("/log"));
-  const handleSeeAll = onSeeAllMealsPress ?? (() => router.push("/log"));
+  const handleSeeAll = onSeeAllMealsPress ?? (() => router.push("/meal-history"));
 
 
   // 🟢 INITIAL LOAD (MOST IMPORTANT FIX)
@@ -930,60 +884,18 @@ export default function HomeScreen({
 
   }, []);
 
+
+
   // 🟡 REFRESH ONLY WHEN NEEDED
-  useEffect(() => {
-
-    const refreshData = async () => {
-
-      try {
-
-        const token =
-          await AsyncStorage.getItem(
-            "@auth_access_token"
-          );
-
-        console.log(
-          "REFRESH TOKEN:",
-          token
-        );
-
-        if (!token) {
-          return;
-        }
-
-        if (params.refresh === "true") {
-
-          await loadData();
-        }
-
-      } catch (error) {
-
-        console.log(
-          "REFRESH ERROR:",
-          error
-        );
-      }
-    };
-
-    refreshData();
-
-  }, [params.refresh]);;
-
-
-  useEffect(() => {
-
-    if (
-      params.refresh === "true"
-    ) {
-
-      console.log(
-        "REFRESHING HOME DATA"
-      );
+  useFocusEffect(
+    useCallback(() => {
 
       loadData();
-    }
 
-  }, [params.refresh]);
+    }, [])
+  );
+
+
 
   // 🔥 DATA LOADER
   const loadData = async () => {
@@ -997,7 +909,8 @@ export default function HomeScreen({
       let summaryResponse = null;
       let mealsResponse = null;
       let goalsResponse = null;
-
+      let calories = 0;
+      let protein = 0;
       // ─────────────────────────────
       // SUMMARY
       // ─────────────────────────────
@@ -1011,7 +924,11 @@ export default function HomeScreen({
           "SUMMARY RESPONSE:",
           summaryResponse
         );
+        calories =
+          summaryResponse?.totals.calories || 0;
 
+        protein =
+          summaryResponse?.totals.protein || 0;
         setUserName(
           summaryResponse?.user_name || "User"
         );
@@ -1059,7 +976,27 @@ export default function HomeScreen({
           "GOALS RESPONSE:",
           goalsResponse
         );
+        const goalCalories =
+          goalsResponse?.calories;
 
+        const goalProtein =
+          goalsResponse?.protein;
+        const caloriesOk =
+          calories >=
+          goalCalories * 0.7;
+
+        const proteinOk =
+          protein >=
+          goalProtein * 0.7;
+
+        if (
+          !caloriesOk ||
+          !proteinOk
+        ) {
+
+          await sendStreakReminder();
+
+        }
       } catch (error) {
 
         console.log(
@@ -1273,13 +1210,17 @@ const s = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+
+    alignItems: "center",
+    justifyContent: "center",
+
+    overflow: "hidden",
   },
+
   avatarText: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#fff',
+    fontWeight: "700",
+    color: "#fff",
   },
 
   // ── Shared
@@ -1601,3 +1542,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 });
+function loadDashboard() {
+  throw new Error('Function not implemented.');
+}
+
