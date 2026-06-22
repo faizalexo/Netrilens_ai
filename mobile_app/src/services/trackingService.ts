@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "./api";
 
 const BASE_URL =
   "http://192.168.1.3:8000/api";
@@ -33,7 +34,7 @@ const getAuthHeaders = async () => {
 | ADD MEAL
 |--------------------------------------------------------------------------
 */
-
+ 
 export const addMeal = async (
   data: {
     food_id: number;
@@ -216,3 +217,35 @@ export const updateMeal =
 
     return await res.json();
 };
+
+/*
+|--------------------------------------------------------------------------
+| water
+|--------------------------------------------------------------------------
+*/
+export const addWater =
+async (amount:number)=>{
+
+  const response =
+    await api.post(
+      "/tracking/water/add/",
+      {
+        amount
+      }
+    );
+
+  return response.data;
+};
+
+
+export const getTodayWater =
+async ()=>{
+
+  const response =
+    await api.get(
+      "/tracking/water/today/"
+    );
+
+  return response.data;
+};
+

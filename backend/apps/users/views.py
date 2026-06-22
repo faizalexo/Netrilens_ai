@@ -281,7 +281,8 @@ def google_login(request):
         user_info = id_token.verify_oauth2_token(
             token,
             requests.Request(),
-            settings.GOOGLE_WEB_CLIENT_ID
+            settings.GOOGLE_WEB_CLIENT_ID,
+            clock_skew_in_seconds=300
         )
 
         email = user_info["email"]
@@ -319,10 +320,21 @@ def google_login(request):
         })
 
     except Exception as e:
-        return Response({
-            "success": False,
-            "error": str(e)
-        }, status=400)
+        import traceback
+
+        print("=" * 50)
+        print("GOOGLE LOGIN FAILED")
+        print("ERROR:", repr(e))
+        traceback.print_exc()
+        print("=" * 50)
+
+        return Response(
+            {
+                "success": False,
+                "error": str(e)
+            },
+            status=400
+        )
     
 #forgot password
 @api_view(["POST"])

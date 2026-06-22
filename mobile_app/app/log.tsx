@@ -18,6 +18,12 @@ import { useRouter } from "expo-router";
 
 import { searchFood } from "../src/services/foodService";
 import { addMeal } from "../src/services/trackingService";
+import {
+  cancelStreakNotifications,
+} from "@/src/services/notifications/streakNotifications";
+import {
+  scheduleStreakNotifications,
+} from "@/src/services/notifications/streakNotifications";
 
 type Food = {
   fat: number;
@@ -234,13 +240,20 @@ export default function LogScreen() {
         grams: Number(grams),
         meal_type: mealType.toLowerCase(),
       });
+
       queryClient.invalidateQueries({ queryKey: ["summary"] });
       Alert.alert("Success", "Meal added");
+      await cancelStreakNotifications();
       router.replace("/(tabs)?refresh=true");
+      await scheduleStreakNotifications();
+      queryClient.invalidateQueries({
+        queryKey: ["progress"],
+      });
     } catch {
       Alert.alert("Error", "Failed to add meal");
     }
   };
+
 
   return (
     <KeyboardAvoidingView

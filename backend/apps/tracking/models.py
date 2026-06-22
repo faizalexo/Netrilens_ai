@@ -10,7 +10,10 @@ from apps.food.models import FoodItem
 
 
 
-# 🔥 Custom QuerySet
+
+
+#query section 
+
 class MealQuerySet(models.QuerySet):    
     def for_user(self, user):
         return self.filter(user=user)
@@ -49,7 +52,7 @@ class MealQuerySet(models.QuerySet):
         )
 
 
-# 🔥 Meal Model
+#  Meal Model
 class Meal(models.Model):
     class MealType(models.TextChoices):
         BREAKFAST = "breakfast", "Breakfast"
@@ -91,7 +94,7 @@ class Meal(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # 🔥 Snapshot fields (important)
+#  Snapshot fields (important)
     food_name = models.CharField(max_length=255, editable=False)
     calories = models.DecimalField(max_digits=8, decimal_places=2, editable=False)
     protein = models.DecimalField(max_digits=8, decimal_places=2, editable=False)
@@ -116,14 +119,14 @@ class Meal(models.Model):
     def __str__(self):
         return f"{self.user_id} | {self.meal_type} | {self.food_name} | {self.grams}g"
 
-    # 🔥 Validation
+    
     def clean(self):
         super().clean()
 
         if not self.food:
             raise ValidationError({"food": "Food is required for meal tracking."})
 
-    # 🔥 Save override
+    
     def save(self, *args, **kwargs):
         is_new = self.pk is None
 
@@ -134,7 +137,7 @@ class Meal(models.Model):
 
         super().save(*args, **kwargs)
 
-    # 🔥 Nutrition calculation (FIXED)
+    
     def _sync_nutrition_snapshot(self):
         if not self.food:
             raise ValueError("Food required")
@@ -160,3 +163,26 @@ class Meal(models.Model):
     @staticmethod
     def _round_macro(value):
         return Decimal(value).quantize(Decimal("0.01"))
+    
+    
+    
+# water model
+class WaterIntake(models.Model):
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="water_logs"
+    )
+
+    amount = models.PositiveIntegerField()  # ml
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user.email} - {self.amount}ml"

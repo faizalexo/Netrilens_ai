@@ -5,6 +5,17 @@ import axios, {
   AxiosResponse,
 } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  scheduleStreakNotifications,
+} from "@/src/services/notifications/streakNotifications";
+
+import {
+  scheduleMealReminders,
+} from "@/src/services/notifications/mealNotifications";
+import * as Notifications from "expo-notifications";
+import {
+  scheduleWaterReminders,
+} from "@/src/services/notifications/waterNotifications";
 
 // ─────────────────────────────────────────────────────────────
 // CONFIG
@@ -32,7 +43,7 @@ const api: AxiosInstance = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  
+
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -139,7 +150,7 @@ const processQueue = (
 // ─────────────────────────────────────────────────────────────
 // RESPONSE INTERCEPTOR
 // ─────────────────────────────────────────────────────────────
- api.interceptors.response.use(
+api.interceptors.response.use(
 
   (response: AxiosResponse) => {
 
@@ -297,10 +308,21 @@ export const authApi = {
     const { access, refresh, user } = response.data;
 
     await tokenStorage.setTokens(access, refresh);
+    await scheduleStreakNotifications();
+    await scheduleWaterReminders();
+    await scheduleMealReminders();
     await tokenStorage.setUser(user);
 
     api.defaults.headers.common.Authorization =
       `Bearer ${access}`;
+
+    await scheduleStreakNotifications();
+
+    await scheduleMealReminders();
+
+    console.log(
+      "✅ Notifications Scheduled"
+    );
 
     return response.data;
   },
@@ -338,7 +360,7 @@ if (__DEV__) {
     return config;
   });
 
-  
+
 }
 export const getGoals = async () => {
   try {
@@ -358,6 +380,9 @@ export const getGoals = async () => {
 };
 
 export const logoutUser = async () => {
+  await Notifications.cancelAllScheduledNotificationsAsync();
+
+  await tokenStorage.clearAll();
   try {
 
     await tokenStorage.clearAll();

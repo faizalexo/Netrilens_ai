@@ -39,7 +39,8 @@ import api, { logoutUser } from '@/src/services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { testNotification } from '@/src/services/notificationService';
+import { initializeNotifications }
+    from "@/src/services/notifications/notificationService";
 
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
@@ -73,7 +74,11 @@ const MODAL_H = H * 0.92;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Gender = 'male' | 'female';
-type Goal = 'lose' | 'maintain' | 'gain' | 'muscle';
+type Goal =
+    | "aggressive_cut"
+    | "lose_fat"
+    | "maintain"
+    | "lean_bulk";
 type Activity = 'sedentary' | 'light' | 'moderate' | 'active' | 'athlete';
 
 interface Profile {
@@ -97,10 +102,26 @@ const ACHIEVEMENTS = [
 ];
 
 const GOALS: { key: Goal; label: string; icon: string }[] = [
-    { key: 'lose', label: 'Lose Weight', icon: '📉' },
-    { key: 'maintain', label: 'Maintain', icon: '⚖️' },
-    { key: 'gain', label: 'Gain Weight', icon: '📈' },
-    { key: 'muscle', label: 'Build Muscle', icon: '💪' },
+    {
+        key: "aggressive_cut",
+        label: "Aggressive Cut",
+        icon: "⚡",
+    },
+    {
+        key: "lose_fat",
+        label: "Fat Loss",
+        icon: "🔥",
+    },
+    {
+        key: "maintain",
+        label: "Maintain Weight",
+        icon: "⚖️",
+    },
+    {
+        key: "lean_bulk",
+        label: "Lean Bulk",
+        icon: "🚀",
+    },
 ];
 
 const ACTIVITIES: { key: Activity; label: string }[] = [
@@ -712,35 +733,25 @@ export default function ProfileScreen() {
                 data.profile_image
             );
 
-            const backendGoal =
-                data.profile.goal;
+            const backendGoal = data.profile.goal;
 
-            let mappedGoal: Goal =
-                "maintain";
+            let mappedGoal: Goal = "maintain";
 
-            if (
-                backendGoal ===
-                "lose_weight"
-            )
-                mappedGoal = "lose";
+            if (backendGoal === "aggressive_cut") {
+                mappedGoal = "aggressive_cut";
+            }
 
-            if (
-                backendGoal ===
-                "maintain_weight"
-            )
+            if (backendGoal === "lose_fat") {
+                mappedGoal = "lose_fat";
+            }
+
+            if (backendGoal === "maintain") {
                 mappedGoal = "maintain";
+            }
 
-            if (
-                backendGoal ===
-                "gain_weight"
-            )
-                mappedGoal = "gain";
-
-            if (
-                backendGoal ===
-                "gain_muscle"
-            )
-                mappedGoal = "muscle";
+            if (backendGoal === "lean_bulk") {
+                mappedGoal = "lean_bulk";
+            }
             setProfile({
                 username:
                     data.user.username,
@@ -948,35 +959,23 @@ export default function ProfileScreen() {
 
                 setSaving(true);
 
-                let backendGoal =
-                    "maintain_weight";
+                let backendGoal = "maintain";
 
-                if (
-                    draft.goal === "lose"
-                )
-                    backendGoal =
-                        "lose_weight";
+                if (draft.goal === "aggressive_cut") {
+                    backendGoal = "aggressive_cut";
+                }
 
-                if (
-                    draft.goal ===
-                    "maintain"
-                )
-                    backendGoal =
-                        "maintain_weight";
+                if (draft.goal === "lose_fat") {
+                    backendGoal = "lose_fat";
+                }
 
-                if (
-                    draft.goal ===
-                    "gain"
-                )
-                    backendGoal =
-                        "gain_weight";
+                if (draft.goal === "maintain") {
+                    backendGoal = "maintain";
+                }
 
-                if (
-                    draft.goal ===
-                    "muscle"
-                )
-                    backendGoal =
-                        "gain_muscle";
+                if (draft.goal === "lean_bulk") {
+                    backendGoal = "lean_bulk";
+                }
 
                 const response =
                     await api.put(
@@ -1083,25 +1082,7 @@ export default function ProfileScreen() {
                             </BlurView>
                         </TouchableOpacity>
                     </MotiView>
-                    <TouchableOpacity
-                        onPress={testNotification}
-                        style={{
-                            marginTop: 20,
-                            padding: 15,
-                            backgroundColor: "#8B5CF6",
-                            borderRadius: 12,
-                            alignItems: "center",
-                        }}
-                    >
-                        <Text
-                            style={{
-                                color: "#fff",
-                                fontWeight: "700",
-                            }}
-                        >
-                            Test Notification
-                        </Text>
-                    </TouchableOpacity>
+
 
                     {/* Avatar + identity */}
 

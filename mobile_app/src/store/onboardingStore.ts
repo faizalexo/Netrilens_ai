@@ -6,9 +6,11 @@ export type Gender =
     | 'Other';
 
 export type Goal =
+
+    | 'aggressive_cut'
     | 'lose_fat'
     | 'maintain'
-    | 'gain_muscle';
+    | 'lean_bulk';
 
 export type ActivityId =
     | 'sedentary'

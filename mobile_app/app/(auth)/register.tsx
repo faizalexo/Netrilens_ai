@@ -48,6 +48,17 @@ import { router } from
   'expo-router';
 import { useToast } from "@/components/ui/NetrilensToast";
 import { signInWithGoogle } from '../../src/auth/googleAuth';
+import {
+  initializeNotifications
+} from "@/src/services/notifications/notificationService";
+
+import {
+  scheduleWaterReminders
+} from "@/src/services/notifications/waterNotifications";
+
+import {
+  scheduleAICheck
+} from "@/src/services/notifications/aiNotifications";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -663,6 +674,11 @@ export default function AuthScreen() {
                           "@auth_access_token",
                           data.access
                         );
+                        await initializeNotifications();
+
+                        await scheduleWaterReminders();
+
+                        await scheduleAICheck();
 
                         await AsyncStorage.setItem(
                           "@auth_refresh_token",

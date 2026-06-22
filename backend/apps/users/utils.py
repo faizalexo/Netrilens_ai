@@ -6,72 +6,127 @@ from django.utils import timezone
 
 
 def calculate_goals(profile):
-    # 🛡️ Safe parsing
+    # ─────────────────────────────────────────────
+    # Safe parsing
+    # ─────────────────────────────────────────────
     weight = float(profile.weight or 0)
     height = float(profile.height or 0)
     age = int(profile.age or 18)
 
-    gender = (profile.gender or "").lower()
-    activity = (profile.activity_level or "").lower()
-    goal = (profile.goal or "").lower()
+    gender = (profile.gender or "").lower().strip()
+    activity = (profile.activity_level or "").lower().strip()
+    goal = (profile.goal or "").lower().strip()
 
-    # 🔥 BMR (Mifflin-St Jeor)
+    if weight <= 0 or height <= 0:
+        return {
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fats": 0,
+            "maintenance_calories": 0,
+            "insights": ["Invalid profile data"]
+        }
+
+    # ─────────────────────────────────────────────
+    # BMR (Mifflin-St Jeor)
+    # ─────────────────────────────────────────────
     if gender in ["male", "m"]:
-        bmr = 10 * weight + 6.25 * height - 5 * age + 5
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5
+        min_calories = 1500
     else:
-        bmr = 10 * weight + 6.25 * height - 5 * age - 161
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161
+        min_calories = 1200
 
-    # 🔥 Activity multiplier
+    # ─────────────────────────────────────────────
+    # Activity Multiplier
+    # ─────────────────────────────────────────────
     activity_map = {
-    "sedentary": 1.2,
-    "light": 1.375,
-    "moderate": 1.55,
-    "active": 1.725,
-    "athlete": 1.9,
-}
+        "sedentary": 1.20,
+        "light": 1.375,
+        "moderate": 1.55,
+        "active": 1.725,
+        "athlete": 1.90,
+    }
 
-    calories = bmr * activity_map.get(activity, 1.2)
+    maintenance_calories = bmr * activity_map.get(activity, 1.20)
 
-    # 🎯 Goal adjustment
-    if goal == "lose_fat":
-        calories -= 400
-    elif goal == "gain_muscle":
-        calories += 300
+    # ─────────────────────────────────────────────
+    # Goal Adjustment
+    # ─────────────────────────────────────────────
+    calories = maintenance_calories
 
-    calories = max(calories, 1200)  # 🛡️ minimum safety
+    if goal == "aggressive_cut":
+        calories -= 1000
 
-    # 💪 Protein
-    protein = weight * 2  # g
+    elif goal == "lose_fat":
+        calories -= 500
 
-    # 🥑 Fat (25%)
+    elif goal == "lean_bulk":
+        calories += 700
+
+    elif goal == "maintain":
+        calories = maintenance_calories
+
+    # Safety floor
+    calories = max(calories, min_calories)
+
+    # ─────────────────────────────────────────────
+    # Macros
+    # ─────────────────────────────────────────────
+
+    # Protein
+    if goal in ["lean_bulk"]:
+        protein = weight * 2.2
+    else:
+        protein = weight * 2.0
+
+    # Fat = 25% calories
     fats = (calories * 0.25) / 9
 
-    # 🍚 Carbs (remaining)
-    remaining_calories = calories - (protein * 4 + fats * 9)
-    carbs = max(remaining_calories / 4, 0)  # 🛡️ no negative carbs
+    # Remaining carbs
+    carb_calories = calories - ((protein * 4) + (fats * 9))
+    carbs = max(carb_calories / 4, 0)
 
-    # 🤖 SMART INSIGHTS
+    # ─────────────────────────────────────────────
+    # Smart Insights
+    # ─────────────────────────────────────────────
     insights = []
 
+    if goal == "aggressive_cut":
+        insights.append(
+            "Aggressive calorie deficit selected. Prioritize protein intake and strength training."
+        )
+
     if calories < 1500:
-        insights.append("Your calorie intake is quite low")
+        insights.append(
+            "Calories are quite low. Monitor energy levels and recovery."
+        )
 
-    if protein < weight * 1.5:
-        insights.append("You need more protein for better recovery")
+    if protein < weight * 1.8:
+        insights.append(
+            "Protein intake may be insufficient for optimal muscle retention."
+        )
 
-    if goal == "lose_fat" and calories > bmr:
-        insights.append("Calorie deficit is too small for fat loss")
+    if goal == "lean_bulk":
+        insights.append(
+            "Focus on progressive overload and adequate sleep for muscle growth."
+        )
 
-    if goal == "gain_muscle" and protein < weight * 1.8:
-        insights.append("Increase protein for muscle gain")
+    if goal == "maintain":
+        insights.append(
+            "Your calories are set to maintain your current body weight."
+        )
 
-    # 🔥 FINAL OUTPUT
+    # ─────────────────────────────────────────────
+    # Final Output
+    # ─────────────────────────────────────────────
     return {
+        "maintenance_calories": round(maintenance_calories),
         "calories": round(calories),
         "protein": round(protein),
         "carbs": round(carbs),
         "fats": round(fats),
-        "insights": insights
+        "insights": insights,
     }
 
 

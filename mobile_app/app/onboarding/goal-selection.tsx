@@ -38,7 +38,7 @@ import { typography } from '@/src/theme/typography';
 import { useOnboardingStore } from "@/src/store/onboardingStore";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-export type GoalId = 'lose_fat' | 'maintain' | 'gain_muscle';
+export type GoalId =  'aggressive_cut'  | 'lose_fat' | 'maintain' | 'lean_bulk';
 
 interface Goal {
   id: GoalId;
@@ -50,38 +50,44 @@ interface Goal {
   glowColor: string;
 }
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
 const GOALS: Goal[] = [
+  {
+    id: "aggressive_cut",
+    label: "Aggressive Cut",
+    icon: "⚡",
+    desc: "Rapid fat loss with a large calorie deficit for faster results.",
+    gradColors: ["rgba(239,68,68,0.14)", "rgba(249,115,22,0.08)"],
+    borderColor: "#EF4444",
+    glowColor: "#EF4444",
+  },
   {
     id: "lose_fat",
     label: "Fat Loss",
-    icon: '🔥',
-    desc: 'Burn excess fat while preserving lean muscle mass.',
-    gradColors: ['rgba(249,115,22,0.12)', 'rgba(236,72,153,0.08)'],
+    icon: "🔥",
+    desc: "Burn excess fat while preserving lean muscle mass.",
+    gradColors: ["rgba(249,115,22,0.12)", "rgba(236,72,153,0.08)"],
     borderColor: TOKENS.orange,
     glowColor: TOKENS.orange,
   },
   {
-    id: 'maintain',
-    label: 'Maintain',
-    icon: '⚖️',
-    desc: 'Stay at peak performance and maintain your current physique.',
-    gradColors: ['rgba(6,182,212,0.12)', 'rgba(124,58,237,0.08)'],
+    id: "maintain",
+    label: "Maintain Weight",
+    icon: "⚖️",
+    desc: "Maintain your current weight and physique.",
+    gradColors: ["rgba(6,182,212,0.12)", "rgba(124,58,237,0.08)"],
     borderColor: TOKENS.cyan,
     glowColor: TOKENS.cyan,
   },
   {
-    id: "gain_muscle",
-    label: "Build Muscle",
-
-    icon: '💪',
-    desc: 'Maximize muscle growth with precision nutrition timing.',
-    gradColors: ['rgba(124,58,237,0.14)', 'rgba(168,85,247,0.08)'],
-    borderColor: TOKENS.purple,
-    glowColor: TOKENS.purple,
+    id: "lean_bulk",
+    label: "Lean Bulk",
+    icon: "🚀",
+    desc: "Build muscle steadily with minimal fat gain.",
+    gradColors: ["rgba(34,197,94,0.12)", "rgba(16,185,129,0.08)"],
+    borderColor: "#22C55E",
+    glowColor: "#22C55E",
   },
 ];
-
 // ─── GlowOrbs ─────────────────────────────────────────────────────────────────
 function GlowOrbs() {
   const makeOrb = (duration: number, delay = 0) => {

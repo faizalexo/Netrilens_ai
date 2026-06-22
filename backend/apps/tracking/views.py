@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timedelta
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 
@@ -10,14 +10,17 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-
 from apps.tracking.models import Meal
 from apps.users.models import UserProfile
 from apps.users.utils import (update_streak, calculate_goals)
 from .services import (create_meal_entry, list_meal_entries, build_daily_summary,)
 User = get_user_model()
 from rest_framework import status
-from .models import Meal
+from .models import Meal, WaterIntake
+from django.db.models import Sum
+from django.db.models.functions import TruncDate
+from apps.users.ai_coach import generate_ai_insights
+
 
 
 
@@ -348,6 +351,17 @@ def daily_summary(request):
             goal_protein * 0.7
         )
         
+        ai_insights = generate_ai_insights(
+            calories=total_calories,
+            protein=total_protein,
+            carbs=summary["totals"].get("carbs", 0),
+            fats=summary["totals"].get("fat", 0),
+            calorie_goal=goal_calories,
+            protein_goal=goal_protein,
+            carb_goal=goals.get("carbs", 0),
+            fat_goal=goals.get("fats", 0),
+        )
+        
         if (
             calorie_complete and
             protein_complete
@@ -385,6 +399,8 @@ def daily_summary(request):
                     "meals",
                     []
             ),
+                
+                "insights": ai_insights,
 
             "streak": {
 
@@ -458,3 +474,146 @@ def update_meal(request, meal_id):
             "success": False,
             "message": "Meal not found"
         }, status=status.HTTP_404_NOT_FOUND)        
+        
+        
+
+# Progres tab
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def progress_data(request):
+
+    today = timezone.now().date()
+
+    def get_range(days):
+
+        start_date = today - timedelta(days=days)
+
+        meals = (
+            Meal.objects
+            .filter(
+                user=request.user,
+                consumed_at__date__gte=start_date
+            )
+            .annotate(
+                day=TruncDate("consumed_at")
+            )
+            .values("day")
+            .annotate(
+                calories=Sum("calories"),
+                protein=Sum("protein"),
+                carbs=Sum("carbs"),
+                fat=Sum("fat"),
+            )
+            .order_by("day")
+        )
+
+        result = []
+        
+        for meal in meals:
+            print(
+                  "PROGRESS:",
+                  meal["day"],
+                  meal["calories"]
+            )
+        for meal in meals:
+            
+            result.append(
+                {
+                "date": meal["day"].isoformat(),
+
+                "calories":
+                    float(meal["calories"] or 0),
+
+                "protein":
+                    float(meal["protein"] or 0),
+
+                "carbs":
+                    float(meal["carbs"] or 0),
+
+                "fat":
+                    float(meal["fat"] or 0),
+
+                # Water MVP
+                "water": 0,
+               
+                
+            }
+                       
+            )
+
+        return result
+
+    return Response({
+
+        "last_7_days":
+            get_range(7),
+
+        "last_30_days":
+            get_range(30),
+
+        "last_90_days":
+            get_range(90),
+
+        "last_year":
+            get_range(365),
+    })
+    
+    
+# WATER SYSTEM bolte 
+
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def add_water(request):
+
+    amount = int(
+        request.data.get(
+            "amount",
+            0
+        )
+    )
+
+    if amount <= 0:
+        return Response(
+            {
+                "error":
+                "Invalid amount"
+            },
+            status=400
+        )
+
+    WaterIntake.objects.create(
+        user=request.user,
+        amount=amount
+    )
+
+    return Response({
+        "success": True
+    })
+    
+#aaj ka paani ki isthiti 
+    
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def today_water(request):
+
+    today = timezone.localdate()
+
+    total = (
+        WaterIntake.objects
+        .filter(
+            user=request.user,
+            created_at__date=today
+        )
+        .aggregate(
+            total=Sum("amount")
+        )
+        .get("total")
+        or 0
+    )
+
+    return Response({
+        "water": total
+    })    

@@ -12,23 +12,33 @@ import {
   Image,
   Platform,
 } from 'react-native';
-import Svg, {
-  Circle,
-  Defs,
-  LinearGradient as SvgLinearGradient,
-  Stop,
-} from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Stop, } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { getSummary, getTodayMeals } from "../services/trackingService";
+import { getSummary, getTodayMeals, getTodayWater } from "../services/trackingService";
 import api, { getGoals } from "../services/api";
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import { logoutUser, } from "../services/api";
 import {
-  logoutUser,
-} from "../services/api";
+  Modal,
+} from "react-native";
+import WaterIntakeSheet from "../../components/WaterIntakeSheet";
+import { addWater as addWaterApi } from "../services/trackingService";
+import {
+  FadeIn,
+  FadeOut
+} from "react-native-reanimated";
 
+
+import {
+  scheduleWaterReminders
+} from "@/src/services/notifications/waterNotifications";
+
+import {
+  scheduleAICheck
+} from "@/src/services/notifications/aiNotifications";
 
 // ─── Design Tokens ──────────────────────────────────────────────────────────
 const formatNumber = (
@@ -253,7 +263,9 @@ function Header({ name }: { name: string }) {
       </TouchableOpacity>
     </View>
   );
+
 }
+
 
 // ─── Animated Circular Ring ───────────────────────────────────────────────────
 
@@ -452,11 +464,25 @@ function MacroBar({
 
 // ─── Calorie Card (FINAL SAFE VERSION) ───────────────────────────────────────
 
+const [water, setWater] = useState(0);
+const DAILY_GOAL = 3000;
+const waterGoal = 3000;
+
+
+const glasses = Math.min(
+  Math.floor(water / 500),
+  6
+);
 function CalorieCard({ summary }: { summary: NutritionSummary }) {
   if (!summary) return null;
 
   // 🛡️ Safe values
   const goal = summary.caloriesGoal || 1;
+  const waterGoal = 3000;
+  const glasses = Math.min(
+    Math.floor(water / 500),
+    6
+  );
   const consumed = summary.calories || 0;
 
   // remaining (never negative)
@@ -644,6 +670,32 @@ const mapInsights = (rawInsights: string[]): AIInsight[] => {
       };
     }
 
+
+    if (lower.includes("fat")) {
+      return {
+        id: "fat-" + index,
+        emoji: "🥑",
+        title: "Fat Alert",
+        body: text,
+        color: "#00d084",
+        borderColor: "#00d084",
+        gradientStart: "#134e5e",
+        gradientEnd: "#71b280",
+      };
+    }
+
+    if (lower.includes("excellent")) {
+      return {
+        id: "success-" + index,
+        emoji: "🏆",
+        title: "Great Job",
+        body: text,
+        color: "#ffd700",
+        borderColor: "#ffd700",
+        gradientStart: "#42275a",
+        gradientEnd: "#734b6d",
+      };
+    }
     if (lower.includes("calorie")) {
       return {
         id: "calorie-" + index,
@@ -758,7 +810,9 @@ function MealCard({ meal }: { meal: any }) {
 
 import { useLocalSearchParams } from "expo-router";
 import { useToast } from '@/components/ui/NetrilensToast';
-import { sendStreakReminder } from '../services/notificationService';
+import { initializeNotifications } from '../services/notifications/notificationService';
+import WaterIntakePopup from '../../components/WaterIntakeSheet';
+import { checkAIGoals } from '../services/notifications/aiNotifications';
 
 export default function HomeScreen({
 
@@ -769,7 +823,61 @@ export default function HomeScreen({
   onSeeAllMealsPress,
 }: HomeScreenProps) {
   console.log("HOME SCREEN RENDERED");
+  // ─────────────────────────────
+  // WATER
+  // ─────────────────────────────
+  const loadWater = async () => {
+    try {
+      const data = await getTodayWater();
 
+      setWater(data.water || 0);
+
+      console.log(
+        "TODAY WATER:",
+        data.water
+      );
+    } catch (error) {
+      console.log(
+        "LOAD WATER ERROR:",
+        error
+      );
+      useEffect(() => {
+        loadWater();
+      }, []);
+    }
+  };
+
+  const addWaterHandler = async (
+    amount: number
+  ) => {
+    try {
+
+      await addWaterApi(
+        amount
+      );
+
+
+
+    } catch (error) {
+
+      console.log(
+        "ADD WATER ERROR:",
+        error
+      );
+    }
+  };
+  const handleAddWater = async (
+    amount: number
+  ) => {
+
+    await addWaterHandler(
+      amount
+    );
+
+    setWaterModalVisible(
+      false
+    );
+  };
   const router = useRouter();
 
   const params =
@@ -787,9 +895,21 @@ export default function HomeScreen({
 
   const [insights, setInsights] =
     useState<AIInsight[]>([]);
+  const [
+    currentInsightIndex,
+    setCurrentInsightIndex
+  ] = useState(0);
 
   const [loading, setLoading] =
     useState(true);
+
+  const [waterModalVisible, setWaterModalVisible] =
+    useState(false);
+
+  const [selectedWater, setSelectedWater] =
+    useState(500);
+
+
 
   // 🥈 SAFE SUMMARY
   const safeSummary = summary ?? {
@@ -825,6 +945,11 @@ export default function HomeScreen({
         const token = await AsyncStorage.getItem(
           "@auth_access_token"
         );
+        await initializeNotifications();
+
+        await scheduleWaterReminders();
+
+        await scheduleAICheck();
 
         console.log("HOME TOKEN:", token);
 
@@ -833,7 +958,10 @@ export default function HomeScreen({
           return;
         }
 
-        await loadData();
+
+
+
+
 
       } catch (error) {
 
@@ -884,13 +1012,83 @@ export default function HomeScreen({
 
   }, []);
 
+  useEffect(() => {
 
+    if (insights.length <= 1)
+      return;
 
-  // 🟡 REFRESH ONLY WHEN NEEDED
+    const interval =
+      setInterval(() => {
+
+        setCurrentInsightIndex(
+          prev =>
+            prev >= insights.length - 1
+              ? 0
+              : prev + 1
+        );
+
+      }, 10000);
+
+    return () =>
+      clearInterval(interval);
+
+  }, [insights]);
+
   useFocusEffect(
     useCallback(() => {
 
-      loadData();
+      const handleFocus = async () => {
+
+        await loadData();
+
+        try {
+
+          const currentHour =
+            new Date().getHours();
+
+          if (
+            currentHour >= 18 &&
+            currentHour <= 22
+          ) {
+
+            const today =
+              new Date()
+                .toISOString()
+                .split("T")[0];
+
+            const key =
+              `ai_notification_${today}`;
+
+            const alreadySent =
+              await AsyncStorage.getItem(
+                key
+              );
+
+            if (!alreadySent) {
+
+              await checkAIGoals();
+
+              await AsyncStorage.setItem(
+                key,
+                "true"
+              );
+
+              console.log(
+                "✅ AI notification checked"
+              );
+            }
+          }
+
+        } catch (error) {
+
+          console.log(
+            "AI NOTIFICATION ERROR:",
+            error
+          );
+        }
+      };
+
+      handleFocus();
 
     }, [])
   );
@@ -963,6 +1161,7 @@ export default function HomeScreen({
         );
       }
 
+
       // ─────────────────────────────
       // GOALS
       // ─────────────────────────────
@@ -994,7 +1193,7 @@ export default function HomeScreen({
           !proteinOk
         ) {
 
-          await sendStreakReminder();
+          await initializeNotifications();
 
         }
       } catch (error) {
@@ -1024,7 +1223,7 @@ export default function HomeScreen({
 
       const formattedInsights =
         mapInsights?.(
-          goalsData?.insights ?? []
+          summaryResponse?.insights ?? []
         ) ?? [];
 
       setInsights(formattedInsights);
@@ -1066,6 +1265,10 @@ export default function HomeScreen({
           goalsData?.waterGoal ?? 3,
       };
 
+
+
+
+
       // ─────────────────────────────
       // UPDATE STATE
       // ─────────────────────────────
@@ -1077,6 +1280,10 @@ export default function HomeScreen({
       console.log(
         "FINAL SUMMARY:",
         mergedSummary
+      );
+      console.log(
+        "AI INSIGHTS:",
+        summaryResponse?.insights
       );
 
       console.log(
@@ -1135,17 +1342,79 @@ export default function HomeScreen({
         />
 
         {/* 💧 WATER */}
-        <WaterTracker
-          consumed={safeSummary.water}
-          goal={safeSummary.waterGoal}
-        />
+        <TouchableOpacity
+          style={s.waterCard}
+          activeOpacity={0.9}
+          onPress={() =>
+            setWaterModalVisible(true)
+          }
+        >
 
+          <View style={s.waterLeft}>
+            <Text style={s.waterEmoji}>💧</Text>
+
+            <View>
+              <Text style={s.waterTitle}>
+                Water Intake
+              </Text>
+
+              <Text style={{
+                color: C.text2,
+                fontSize: 12,
+              }}>
+                {water}/{waterGoal} ml
+              </Text>
+            </View>
+          </View>
+
+          <View style={s.waterRight}>
+
+            <View style={s.waterBars}>
+              {[...Array(6)].map((_, i) => (
+                <View
+                  key={i}
+                  style={[
+                    s.waterBar,
+                    {
+                      opacity:
+                        i < glasses
+                          ? 1
+                          : 0.2,
+                    },
+                  ]}
+                />
+              ))}
+            </View>
+
+
+
+          </View>
+
+        </TouchableOpacity>
         {/* 🤖 AI INSIGHTS */}
         {insights.length > 0 && (
-          <View style={[s.sectionPad, { marginBottom: 14 }]}>
-            {insights.map((ins) => (
-              <AIInsightCard key={ins.id} insight={ins} />
-            ))}
+          <View
+            style={[
+              s.sectionPad,
+              { marginBottom: 14 }
+            ]}
+          >
+            <Animated.View
+              key={
+                insights[
+                  currentInsightIndex
+                ].id
+              }
+
+            >
+              <AIInsightCard
+                insight={
+                  insights[
+                  currentInsightIndex
+                  ]
+                }
+              />
+            </Animated.View>
           </View>
         )}
 
@@ -1171,7 +1440,19 @@ export default function HomeScreen({
           </View>
         </View>
       </ScrollView>
+
+
+      <WaterIntakePopup
+        visible={waterModalVisible}
+        currentIntake={water}
+        dailyGoal={waterGoal}
+        onClose={() =>
+          setWaterModalVisible(false)
+        }
+        onAdd={addWaterApi}
+      />
     </View>
+
   );
 }
 
@@ -1545,4 +1826,7 @@ const styles = StyleSheet.create({
 function loadDashboard() {
   throw new Error('Function not implemented.');
 }
+
+
+
 
