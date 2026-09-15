@@ -22,8 +22,8 @@ import {
 // ─────────────────────────────────────────────────────────────
 
 // ⚠️ Replace with your local IP
-// Example: http://192.168.1.3:8000/api
-const BASE_URL = "http://192.168.1.3:8000/api";
+// Example: http://10.169.211.70:8000/api
+const BASE_URL = "http://10.169.211.70:8000/api";
 
 // Storage Keys
 export const STORAGE_KEYS = {

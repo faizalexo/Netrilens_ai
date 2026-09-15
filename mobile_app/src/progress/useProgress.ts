@@ -19,7 +19,7 @@ import api from '../services/api';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.1.3:8000';
+const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.169.211.70:8000';
 console.log(
   "API_BASE:",
   API_BASE

@@ -1,70 +1,69 @@
+import "react-native-gesture-handler";
+import "react-native-reanimated";
+
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
-} from '@react-navigation/native';
+} from "@react-navigation/native";
 
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 import {
   QueryClient,
   QueryClientProvider,
-} from '@tanstack/react-query';
+} from "@tanstack/react-query";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { ToastProvider } from "@/components/ui/NetrilensToast";
-import { initializeNotifications  } from '@/src/services/notifications/notificationService';
-import { useEffect } from 'react';
+import { initializeNotifications } from "@/src/services/notifications/notificationService";
+
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
-useEffect(() => {
 
-   initializeNotifications();
-
-}, []);
 export default function RootLayout() {
-
   const colorScheme = useColorScheme();
 
+  useEffect(() => {
+    initializeNotifications();
+  }, []);
+
   return (
-    <QueryClientProvider client={queryClient}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider
+          value={
+            colorScheme === "dark"
+              ? DarkTheme
+              : DefaultTheme
+          }
+        >
+          <ToastProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            >
+              <Stack.Screen name="index" />
+              <Stack.Screen name="onboarding" />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen
+                name="modal"
+                options={{
+                  presentation: "modal",
+                }}
+              />
+            </Stack>
+          </ToastProvider>
 
-      <ThemeProvider
-        value={
-          colorScheme === 'dark'
-            ? DarkTheme
-            : DefaultTheme
-        }>
-        <ToastProvider>
-           <Stack
-          screenOptions={{
-            headerShown: false,
-          }}>
-        
-          <Stack.Screen name="index" />
-
-          <Stack.Screen name="onboarding" />
-
-          <Stack.Screen name="(auth)" />
-
-          <Stack.Screen name="(tabs)" />
-
-          <Stack.Screen
-            name="modal"
-            options={{
-              presentation: 'modal',
-            }}
-          />
-
-        </Stack>
-        </ToastProvider>
-
-        <StatusBar style="auto" />
-
-      </ThemeProvider>
-
-    </QueryClientProvider>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

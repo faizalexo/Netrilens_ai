@@ -54,7 +54,7 @@ import type {
   TrendStat,
   AIInsight,
 } from './types';
-
+import { useRouter } from "expo-router";
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants
 // ─────────────────────────────────────────────────────────────────────────────
@@ -531,10 +531,13 @@ export const ProgressScreen = () => {
     // navigation.navigate('DateRangePicker');
   }, []);
 
-  const handleAddMeal = useCallback(() => {
-    // navigation.navigate('AddMeal');
-  }, []);
 
+
+const router = useRouter();
+
+const handleAddMeal = useCallback(() => {
+  router.push("/log");
+}, [router]);
   // ── Chart width ───────────────────────────────────────────────────────────
 
   const chartWidth = SCREEN_W - Spacing.screen * 2 - GRAPH_CARD_PADDING * 2;
